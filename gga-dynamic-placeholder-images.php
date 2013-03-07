@@ -400,7 +400,7 @@ class GGA_Dynamic_Placeholder_Images {
 		}
 
 
-		// save option so we know whoich image to use for the size
+		// save option so we know which image to use for the size
 		if (false === $this->get_existing_image_id_by_dimensions($w, $h) )
 			add_option("_gga-placeholder-image-for-{$w}-{$h}", $id, '', 'no' );
 
@@ -553,7 +553,7 @@ class GGA_Dynamic_Placeholder_Images {
 	}
 
 
-	// because Sneek
+	// because Sneek read the code
 
 }
 
