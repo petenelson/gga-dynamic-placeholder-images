@@ -1,33 +1,37 @@
+
 <?php
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
 
-if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
+if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
-	class GGA_Dynamic_Placeholder_Images {
+	class GGA_Dynamic_Placeholder_Images_Core {
 
+		var $version = '2015-02-26-01';
 		var $sizes;
 		var $meta_prefix = '_gga_image_';
 		var $title = 'GGA Dynamic Image';  // default
 		var $options = '_gga_placeholder_image_options';
+		var $plugin_name = 'gga-dynamic-images';
 		var $add_expires = true;
-		var $domain = 'gga-dynamic-placeholders';
+		var $plugin_base_url = '';
 
 
 		function plugins_loaded() {
 
-			load_plugin_textdomain( $this->domain );
+			load_plugin_textdomain( 'gga-dynamic-placeholder-images' );
 
 			add_action( 'init', array( $this, 'init' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
-			//add_filter( 'cmb_meta_boxes', array( $this, 'define_cmb_metaboxes' ) );
-			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution' ) );
+			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution_shortcode' ) );
 
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 				add_action( 'admin_init', array( $this, 'admin_register_settings' ) );
 			}
 
+
+			add_filter( $this->plugin_name . '-cc-img-html', array( $this, 'cc_img_html' ), 10, 2 );
 
 			// allows us to set the title of our placeholder images
 			$opt = get_option( $this->options );
@@ -96,7 +100,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 
 
 		function admin_menu() {
-			add_options_page( __( 'GGA Dynamic Image Options', $this->domain ), __( 'GGA Dynamic Image', $this->domain ), 'manage_options', 'gga-dynamic-image-options', array( $this, 'admin_options_page' ) );
+			add_options_page( __( 'GGA Dynamic Image Options', 'gga-dynamic-placeholder-images' ), __( 'GGA Dynamic Image', 'gga-dynamic-placeholder-images' ), 'manage_options', 'gga-dynamic-image-options', array( $this, 'admin_options_page' ) );
 		}
 
 
@@ -129,7 +133,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 
 			<div class="wrap">
 				<div id="icon-options-general" class="icon32"></div>
-				<h2><?php _e( 'GGA Dynamic Image Options' , $this->domain ) ?></h2>
+				<h2><?php _e( 'GGA Dynamic Image Options' , 'gga-dynamic-placeholder-images' ) ?></h2>
 				<?php
 			if ( !empty( $status_message ) ) {
 				?><div class="updated"><p><strong><?php echo $status_message ?></strong></p></div><?php
@@ -146,10 +150,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 				<form method="post" action="options-general.php?page=gga-dynamic-image-options" id="gga-dynamic-image-settings">
 					<?php wp_nonce_field( $action = 'gga-clear-dimension-associations', $name = '_wpnonce', $referer = true, $echo = true ) ?>
 
-					<?php _e( 'When an image is first generated, the requested dimensions are associated with the image. Subsequent requests for those dimensions will return the same image. Clearing the associations will allow the plugin to create new ones.', $this->domain ) ?>
+					<?php _e( 'When an image is first generated, the requested dimensions are associated with the image. Subsequent requests for those dimensions will return the same image. Clearing the associations will allow the plugin to create new ones.', 'gga-dynamic-placeholder-images' ) ?>
 
 					<?php
-			submit_button( __( 'Clear Dimension Associations', $this->domain ), $type = 'secondary', $name = 'gga-clear-dimension-associations', $wrap = true, $other_attributes = null );
+			submit_button( __( 'Clear Dimension Associations', 'gga-dynamic-placeholder-images' ), $type = 'secondary', $name = 'gga-clear-dimension-associations', $wrap = true, $other_attributes = null );
 ?>
 				</form>
 
@@ -167,8 +171,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 
 			$section = $opt . '_general';
 
-			add_settings_section( $section, __( 'General', $this->domain ), array( $this, 'dynaminc_image_settings_section' ), $opt );
-			add_settings_field( 'title', __( 'Title:', $this->domain ), array( $this, 'dynaminc_image_title' ), $opt, $section );
+			add_settings_section( $section, __( 'General', 'gga-dynamic-placeholder-images' ), array( $this, 'dynaminc_image_settings_section' ), $opt );
+			add_settings_field( 'title', __( 'Title:', 'gga-dynamic-placeholder-images' ), array( $this, 'dynaminc_image_title' ), $opt, $section );
 
 		}
 
@@ -208,6 +212,20 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 			nocache_headers();
 			include get_404_template();
 			die();
+		}
+
+		function query_images( $args ) {
+			global $post;
+			$posts = array();
+			$query = new WP_Query( $args );
+
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$posts[] = $post;
+			}
+
+			wp_reset_postdata();
+			return $posts;
 		}
 
 		function image_query_args() {
@@ -426,70 +444,22 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 		}
 
 
-		function define_cmb_metaboxes( array $meta_boxes ) {
+		function image_attribution_shortcode() {
 
+			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
 
-			$meta_boxes[] = array(
-				'id'         => 'gga_image_meta_boxes',
-				'title'      => $this->title,
-				'pages'      => array( 'attachment' ), // Post type
-				'context'    => 'normal',
-				'priority'   => 'high',
-				'show_names' => true, // Show field names on the left
-				'fields'     => array(
-					array(
-						'name' => __( 'Is ' . $this->title . ' Image:', $this->domain ),
-						'id'   => $this->meta_prefix . 'is_mockup_image',
-						'type' => 'checkbox',
-					),
-					array(
-						'name' => __( 'Attribute To:', $this->domain ),
-						'id'   => $this->meta_prefix . 'attribute_to',
-						'type' => 'text',
-					),
-					array(
-						'name' => __( 'Attribute Url:', $this->domain ),
-						'id'   => $this->meta_prefix . 'attribute_url',
-						'type' => 'text',
-					),
-					array(
-						'name' => __( 'CC Attribute:', $this->domain ),
-						'id'   => $this->meta_prefix . 'cc_by',
-						'type' => 'checkbox',
-					),
-					array(
-						'name' => __( 'CC Non-Commercial:', $this->domain ),
-						'id'   => $this->meta_prefix . 'cc_nc',
-						'type' => 'checkbox',
-					),
-					array(
-						'name' => __( 'CC Share Alike:', $this->domain ),
-						'id'   => $this->meta_prefix . 'cc_sa',
-						'type' => 'checkbox',
-					),
-				)
-			);
-
-			return $meta_boxes;
-		}
-
-
-		function image_attribution() {
-
-			$html = '<div id="attribImages">';
+			$html = '<div class="gga-dynamic-images-attribution">';
 
 			$args = $this->image_query_args();
 			$args['posts_per_page'] = -1;
 			$args['orderby'] = 'name';
 			$args['order'] = 'asc';
 
-			$query = new WP_Query( $args );
+			$posts = $this->query_images( $args );
 
-			global $post;
-			while ( $query->have_posts() ) {
-				$query->the_post();
-				$id = get_the_id();
+			foreach( $posts as $post ) {
 
+				$id = $post->ID;
 
 				$tag = $post->post_name;
 				$image_url = site_url( $path = '/200/200/' . $tag );
@@ -498,10 +468,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 				$attrib_url = get_post_meta( $id, $this->meta_prefix . 'attribute_url', true );
 
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) );
-				$cc_url = 'http://creativecommons.org/licenses/by/2.0/';
+					$cc_url = 'http://creativecommons.org/licenses/by/2.0/';
 
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) );
-				$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
+					$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
 
 				$html .= "
 				<div class=\"attribImage\">
@@ -509,13 +479,16 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 					tag: {$tag}<br/>";
 
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) )
-					$html .= '<span class="cc cc-by" title="' . __( 'Attribution', $this->domain ) . '"></span>';
+					$html .= '<span class="cc cc-by" title="' . __( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_by' ) . '</span>';
 
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) )
-					$html .= '<span class="cc cc-sa" title="' . __( 'Share Alike', $this->domain ) . '"></span>';
+					$html .= '<span class="cc cc-sa" title="' . __( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_sa' ) . '</span>';
+
+				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_nc', true ) )
+					$html .= '<span class="cc cc-nc" title="' . __( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_nc' ) . '</span>';
 
 				if ( $cc_url != '' )
-					$html .= "<a href=\"{$cc_url}\" target=\"_blank\">" . __( 'Some rights reserved', $this->domain ) . "</a><br/>";
+					$html .= "<a href=\"{$cc_url}\" target=\"_blank\">" . __( 'Some rights reserved', 'gga-dynamic-placeholder-images' ) . "</a><br/>";
 
 				if ( $attrib_to !== false && !empty( $attrib_to ) )
 					$html .= "by <a href=\"{$attrib_url}\" target=\"_blank\">" . htmlspecialchars( $attrib_to ) . "</a>";
@@ -532,6 +505,32 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
 
 
 			wp_reset_postdata();
+
+			return $html;
+
+		}
+
+
+		function cc_img_html( $html, $cc_type ) {
+			$filename = '';
+			switch ( $cc_type ) {
+				case 'cc_nc':
+					$filename = 'cc-non-commercial.png';
+					$alt = __( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' );
+					break;
+				case 'cc_by':
+					$filename = 'cc-attribution.png';
+					$alt = __( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' );
+					break;
+				case 'cc_sa':
+					$filename = 'cc-share-alike.png';
+					$alt = __( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' );
+					break;
+			}
+
+			if ( ! empty( $filename ) ) {
+				$html = '<img class="gga_' . $cc_type . '" src="' . $this->plugin_base_url . 'public/images/' . $filename . '" alt="' . esc_attr( $alt ) . '" />';
+			}
 
 			return $html;
 

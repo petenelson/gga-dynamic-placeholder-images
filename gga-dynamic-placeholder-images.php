@@ -18,15 +18,16 @@
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
 
-$includes = array( '',  '-api' , '-admin' );
+$includes = array( 'core',  'api' , 'admin' );
 foreach ($includes as $include) {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gga-dynamic-placeholder-images' . $include . '.php';
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gga-dynamic-placeholder-images-' . $include . '.php';
 }
 
 
-if ( class_exists( 'GGA_Dynamic_Placeholder_Images' ) ) {
-	$gga_dynamic_placeholder_images = new GGA_Dynamic_Placeholder_Images();
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images, 'plugins_loaded' ) );
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
+	$gga_dynamic_placeholder_images_core = new GGA_Dynamic_Placeholder_Images_Core();
+	$gga_dynamic_placeholder_images_core->plugin_base_url = plugin_dir_url( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_core, 'plugins_loaded' ) );
 }
 
 
@@ -38,5 +39,6 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Admin' ) ) {
 	$gga_dynamic_placeholder_images_admin = new GGA_Dynamic_Placeholder_Images_Admin();
+	$gga_dynamic_placeholder_images_admin->plugin_base_url = plugin_dir_url( __FILE__ );
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_admin, 'plugins_loaded' ) );
 }
