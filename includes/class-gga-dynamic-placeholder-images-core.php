@@ -72,6 +72,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			}
 		}
 
+
 		function get_base_url() {
 			$base_url = apply_filters( $this->plugin_name . '-get-option', 'dynamic-image', 'base_url' );
 			return ! empty( $base_url ) ? $base_url . '/' : '';
@@ -80,24 +81,11 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		function handle_dynamic_image() {
 
-			// get it here: https://github.com/jaredatch/Custom-Metaboxes-and-Fields-for-WordPress
-			//if ( !class_exists( 'cmb_Meta_Box' ) )
-			// require_once plugin_dir_path( __FILE__ ) . 'custom-metaboxes/init.php';
-
 			global $wp_query;
 
 			$width = intval( $wp_query->get( 'gga-dynamic-image-width' ) );
 			$height = intval( $wp_query->get( 'gga-dynamic-image-height' ) );
 			$slug = sanitize_key( $wp_query->get( 'gga-dynamic-image-slug' ) );
-
-			// for .htaccess
-			// RewriteEngine On
-			// RewriteRule ^(\d*)/(\d*)/([0-9a-zA-Z\-]*)$ index.php?gga-image=1&gga-image-width=$1&gga-image-height=$2&gga-image-slug=$3  [NC]
-			// RewriteRule ^(\d*)/(\d*)/$ index.php?gga-image=1&gga-image-width=$1&gga-image-height=$2  [NC]
-			// RewriteRule ^(\d*)/(\d*)$ index.php?gga-image=1&gga-image-width=$1&gga-image-height=$2  [NC,L]
-
-			// translates into this
-			// http://localhost:8080/wp-baconmockup/index.php?gga-image=1&gga-image-width=300&gga-image-height=300&gga-image-slug=bacon
 
 
 			if ( $width !== 0 && $height !== 0 ) {
@@ -336,7 +324,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $w . '-' . $h . '.jpg' );
 
 				if ( $this->add_expires ) {
-					$expires = 60*60*24*14;
+					$expires = DAY_IN_SECONDS * 15;
 					header( 'Pragma: public' );
 					header( 'Cache-Control: public' );
 					header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time()+$expires ) . ' GMT' );
@@ -498,7 +486,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				$id = $post->ID;
 
 				$tag = $post->post_name;
-				$image_url = site_url( $this->get_base_url() . '/200/200/' . $tag );
+				$image_url = site_url( $this->get_base_url() . '200/200/' . $tag );
 				$cc_url = '';
 				$attrib_to = get_post_meta( $id, $this->meta_prefix . 'attribute_to', true );
 				$attrib_url = get_post_meta( $id, $this->meta_prefix . 'attribute_url', true );

@@ -80,6 +80,8 @@ if ( !class_exists( 'GGA_Dynamic_Placeholder_Images_Admin' ) ) {
 				}
 			}
 
+			return $post;
+
 		}
 
 
