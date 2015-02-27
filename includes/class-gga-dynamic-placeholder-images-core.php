@@ -19,16 +19,13 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			load_plugin_textdomain( 'gga-dynamic-placeholder-images' );
 
-			add_action( 'init', array( $this, 'get_cache_directory_size' ) );
+			add_action( 'init', array( $this, 'get_cache_directory_for_width' ) );
 			add_action( 'init', array( $this, 'register_rewrites' ) );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
-			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution_shortcode' ) );
 
-			if ( is_admin() ) {
-				//add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-				//add_action( 'admin_init', array( $this, 'admin_register_settings' ) );
-			}
+			// displays the image attribution list
+			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution_shortcode' ) );
 
 			// for generating Creative Commons icons
 			add_filter( $this->plugin_name . '-cc-img-html', array( $this, 'cc_img_html' ), 10, 2 );
@@ -576,23 +573,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			} else {
 				return false;
 			}
-
 		}
 
 
 		function get_cache_directory_size() {
 			$list = $this->get_cache_directory_contents();
 			if ( !empty( $list ) ) {
-
 				$size = $this->get_directory_size( $list );
-				echo size_format( $size );
-				die();
 				return $size;
 			} else {
 				return -1;
 			}
-
-			die();
 		}
 
 
@@ -611,8 +602,30 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			}
 
-
 			return $size;
+		}
+
+
+		function get_cache_directory_for_width( $width ) {
+			$max_width = $this->get_max_width();
+			if ( $width > $max_width ) {
+				$width = $max_width;
+			}
+
+			$width_directory = path_join( $this->get_cache_directory(), ceil( $width / 100 ) * 100 );
+			if ( ! is_dir( $width_directory ) ) {
+				wp_mkdir_p( $width_directory );
+			}
+			var_dump($width_directory);
+			die();
+		}
+
+		function get_max_width() {
+			return intval( apply_filters( $this->plugin_name . '-setting-get', 2000, $this->plugin_name . '-settings-general', 'max-width' ) );
+		}
+
+		function get_max_height() {
+			return intval( apply_filters( $this->plugin_name . '-setting-get', 2000, $this->plugin_name . '-settings-general', 'max-height' ) );
 		}
 
 

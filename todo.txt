@@ -2,7 +2,6 @@ Rewrite settings to have tabs for general, endpoints, cache, API, help, etc
 
 
 
-Create gga-dynamic-images cache directory (subdirs 100 to max res)
 Save resized image to cache directory
 Read generated image from cache directory
 Flush cache directory
