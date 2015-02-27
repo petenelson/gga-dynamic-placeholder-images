@@ -2,9 +2,9 @@
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
 
-if ( !class_exists( 'GGA_Dynamic_Placeholder_Images_Admin' ) ) {
+if ( !class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 
-	class GGA_Dynamic_Placeholder_Images_Admin {
+	class GGA_Dynamic_Placeholder_Images_Attachment_Meta {
 
 		var $plugin_base_url = '';
 
@@ -95,49 +95,6 @@ if ( !class_exists( 'GGA_Dynamic_Placeholder_Images_Admin' ) ) {
 		}
 
 
-		function add_meta_box_attachment( ) {
-
-			//var_dump(get_current_screen());
-
-			add_meta_box( 'gga-dynamic-image', 'GGA Dynamic Image', array( $this, 'render_metabox' ), 'attachment', 'normal', 'low', $callback_args = null );
-
-
-		}
-
-
-		function render_metabox( $args ) {
-
-
-			// TODO metabox nonce
-?>
-
-			<style>
-
-				.gga-metabox td, .gga-metabox th {
-					border-bottom: 1px solid #e9e9e9;
-				}
-
-			</style>
-
-			<div class="inside">
-
-				<table class="form-table gga-metabox">
-					<tbody>
-						<tr>
-							<th style="width:18%">
-								<label for="_gga_image_is_mockup_image">Is Bacon Mockup Image:</label>
-							</th>
-							<td>
-								<input type="checkbox" name="_gga_image_is_mockup_image" id="_gga_image_is_mockup_image" checked="checked">
-								<span class="cmb_metabox_description"></span>
-							</td>
-						</tr>
-
-						<tr><th style="width:18%"><label for="_gga_image_attribute_to">Attribute To:</label></th><td><input type="text" name="_gga_image_attribute_to" id="_gga_image_attribute_to" value="cookbookman17"><p class="cmb_metabox_description"></p></td></tr><tr><th style="width:18%"><label for="_gga_image_attribute_url">Attribute Url:</label></th><td><input type="text" name="_gga_image_attribute_url" id="_gga_image_attribute_url" value="http://www.flickr.com/photos/cookbookman/"><p class="cmb_metabox_description"></p></td></tr><tr><th style="width:18%"><label for="_gga_image_cc_by">CC Attribute:</label></th><td><input type="checkbox" name="_gga_image_cc_by" id="_gga_image_cc_by" checked="checked"><span class="cmb_metabox_description"></span></td></tr><tr><th style="width:18%"><label for="_gga_image_cc_nc">CC Non-Commercial:</label></th><td><input type="checkbox" name="_gga_image_cc_nc" id="_gga_image_cc_nc"><span class="cmb_metabox_description"></span></td></tr><tr><th style="width:18%"><label for="_gga_image_cc_sa">CC Share Alike:</label></th><td><input type="checkbox" name="_gga_image_cc_sa" id="_gga_image_cc_sa"><span class="cmb_metabox_description"></span></td></tr></tbody></table>
-
-			</div>
-			<?php
-		}
 
 
 

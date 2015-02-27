@@ -1,4 +1,3 @@
-
 <?php
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
@@ -26,15 +25,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution_shortcode' ) );
 
 			if ( is_admin() ) {
-				add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-				add_action( 'admin_init', array( $this, 'admin_register_settings' ) );
+				//add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+				//add_action( 'admin_init', array( $this, 'admin_register_settings' ) );
 			}
 
 			// for generating Creative Commons icons
 			add_filter( $this->plugin_name . '-cc-img-html', array( $this, 'cc_img_html' ), 10, 2 );
-
-			// for getting an option value
-			add_filter( $this->plugin_name . '-get-option', array( $this, 'get_option_filter'), 10, 2 );
 
 		}
 
@@ -49,6 +45,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			add_rewrite_rule( $this->get_base_url() . '([0-9]+)/([0-9]+)/?', 'index.php?gga-dynamic-image=1&gga-dynamic-image-width=$matches[1]&gga-dynamic-image-height=$matches[2]&gga-dynamic-image-slug=random', 'top' );
 		}
 
+
 		function template_redirect() {
 
 			global $wp_query;
@@ -62,19 +59,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_option_filter( $value, $key ) {
-			$options = get_option( $this->options );
-			if ( ! empty( $options ) && isset( $options[ $key ] ) ) {
-				return $options[ $key ];
-			}
-			else {
-				return $value;
-			}
-		}
-
-
 		function get_base_url() {
-			$base_url = apply_filters( $this->plugin_name . '-get-option', 'dynamic-image', 'base_url' );
+			$base_url = apply_filters( $this->plugin_name . '-get-option', 'dynamic-image', 'base-url' );
 			return ! empty( $base_url ) ? $base_url . '/' : '';
 		}
 
@@ -192,47 +178,15 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function admin_register_settings() {
-			$opt = $this->options;
-
-			register_setting( $opt, $opt );
-
-			$section = $opt . '_general';
-
-			add_settings_section( $section, __( 'General', 'gga-dynamic-placeholder-images' ), array( $this, 'dynamic_image_settings_section' ), $opt );
-			add_settings_field( 'title', __( 'Title:', 'gga-dynamic-placeholder-images' ), array( $this, 'dynamic_image_title' ), $opt, $section );
-			add_settings_field( 'base_url', __( 'Base URL:', 'gga-dynamic-placeholder-images' ), array( $this, 'dynamic_image_base_url' ), $opt, $section );
-
-		}
-
-		function dynamic_image_settings_section() {}
-
-
-		function dynamic_image_title() {
-			$this->setting_input( 'title', 50, 50 );
-		}
-
-
-		function dynamic_image_base_url() {
-			$this->setting_input( 'base_url', 50, 50 );
-		}
-
-
-		function setting_input( $name, $size, $maxlength, $classes = '' ) {
-			$options = get_option( $this->options );
-			$optionValue = isset( $options[$name] ) ? $options[$name] : "";
-
-			echo "<input id='{$name}' name='" . $this->options . "[{$name}]' size='{$size}' maxlength='{$maxlength}' type='text' value='" . esc_attr( $optionValue ) . "' class=\"{$classes}\" />";
-		}
-
-
 		function delete_attachment( $postid ) {
 			$this->delete_options_from_query( " WHERE option_name like '_gga-placeholder-image-for%' and option_value = '" . intval( $postid ) . "'" );
 		}
 
+
 		function delete_all_dimension_associations() {
 			$this->delete_options_from_query( " WHERE option_name like '_gga-placeholder-image-for%'" ) ;
 		}
+
 
 		function delete_options_from_query( $query ) {
 			global $wpdb;
@@ -243,12 +197,14 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
+
 		function show_404_and_die() {
 			status_header( 404 );
 			nocache_headers();
 			include get_404_template();
 			die();
 		}
+
 
 		function query_images( $args ) {
 			global $post;
@@ -264,6 +220,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			return $posts;
 		}
 
+
 		function image_query_args() {
 
 			return array(
@@ -277,17 +234,20 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
+
 		function get_random_image_id() {
 			$args = $this->image_query_args();
 			$args['orderby'] = 'rand';
 			return $this->get_image_id_from_query( $args );
 		}
 
+
 		function get_image_id_by_slug( $slug ) {
 			$args = $this->image_query_args();
 			$args['name'] = $slug;
 			return $this->get_image_id_from_query( $args );
 		}
+
 
 		function get_image_id_from_query( $args ) {
 			$id = 0;
@@ -298,6 +258,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			return $id;
 		}
+
 
 		function stream_image( $id, $w, $h ) {
 
@@ -344,6 +305,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
+
 		function log_image_view( $w, $h ) {
 
 			$size = "{$w}-{$h}";
@@ -376,6 +338,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				update_option( $key, $this->sizes );
 		}
 
+
 		function load_image_sizes() {
 			$this->sizes = get_option( 'gga-dynamic-image-sizes' );
 
@@ -387,6 +350,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				$this->sizes = array();
 
 		}
+
 
 		function add_image_size( $w, $h ) {
 			$image_size_name = $this->image_size_name( $w, $h );
@@ -450,10 +414,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
+
 		function get_existing_image_id_by_dimensions( $w, $h ) {
 			return get_option( "_gga-placeholder-image-for-{$w}-{$h}", false );
 		}
-
 
 
 		function image_size_exists( $id, $w, $h ) {

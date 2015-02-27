@@ -18,12 +18,13 @@
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
 
-$includes = array( 'core',  'api' , 'admin' );
+$includes = array( 'core', 'api', 'attachment-meta', 'settings' );
 foreach ($includes as $include) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gga-dynamic-placeholder-images-' . $include . '.php';
 }
 
 
+// handles URL rewrites, generating placeholder images, flushing cache, etc
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 	$gga_dynamic_placeholder_images_core = new GGA_Dynamic_Placeholder_Images_Core();
 	$gga_dynamic_placeholder_images_core->plugin_base_url = plugin_dir_url( __FILE__ );
@@ -31,14 +32,23 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 }
 
 
+// exposes an API endpoint and handles API actions
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 	$gga_dynamic_placeholder_images_api = new GGA_Dynamic_Placeholder_Images_API();
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_api, 'plugins_loaded' ) );
 }
 
 
-if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Admin' ) ) {
-	$gga_dynamic_placeholder_images_admin = new GGA_Dynamic_Placeholder_Images_Admin();
-	$gga_dynamic_placeholder_images_admin->plugin_base_url = plugin_dir_url( __FILE__ );
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_admin, 'plugins_loaded' ) );
+// adds meta fields to attachments
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
+	$gga_dynamic_placeholder_images_attachment_meta = new GGA_Dynamic_Placeholder_Images_Attachment_Meta();
+	$gga_dynamic_placeholder_images_attachment_meta->plugin_base_url = plugin_dir_url( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_attachment_meta, 'plugins_loaded' ) );
+}
+
+
+// handles Admin Settings pages and filters to get plugin settings
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
+	$gga_dynamic_placeholder_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_settings, 'plugins_loaded' ) );
 }

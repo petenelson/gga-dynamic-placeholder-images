@@ -7,6 +7,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 	class GGA_Dynamic_Placeholder_Images_API {
 
 
+		private $plugin_name = 'gga-dynamic-images';
+
 		public function plugins_loaded() {
 			add_action( 'init', array( $this, 'register_rewrites' ) );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
@@ -14,26 +16,35 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 
 
 		function register_rewrites() {
-			add_rewrite_tag( '%gga-image-api-action%', '([A-Za-z0-9\-\_]+)' );
-			add_rewrite_rule( 'images-api/([A-Za-z0-9\-\_]+)/?', 'index.php?gga-image-api-action=$matches[1]', 'top' );
+			$enabled = apply_filters( $this->plugin_name . '-setting-is-enabled', 'images-api', $this->plugin_name . '-settings-api', 'api-enabled' );
+			if ( $enabled ) {
+				add_rewrite_tag( '%gga-image-api-action%', '([A-Za-z0-9\-\_]+)' );
+				$endpoint = apply_filters( $this->plugin_name . '-setting-get', 'images-api', $this->plugin_name . '-settings-api', 'api-endpoint' );
+				if ( ! empty ( $endpoint ) )
+					$endpoint .= '/';
+				add_rewrite_rule( $endpoint . '([A-Za-z0-9\-\_]+)/?', 'index.php?gga-image-api-action=$matches[1]', 'top' );
+			}
 		}
 
 
 		function template_redirect() {
 
-			global $wp_query;
+			$enabled = apply_filters( $this->plugin_name . '-setting-is-enabled', 'images-api', $this->plugin_name . '-settings-api', 'api-enabled' );
+			if ( $enabled ) {
+				global $wp_query;
 
-			$action = $wp_query->get( 'gga-image-api-action' );
+				$action = $wp_query->get( 'gga-image-api-action' );
 
-			switch ( $action ) {
+				switch ( $action ) {
 
-				case 'image-tags':
-					$tags = $this->image_tags_get();
-					if ( empty ( $tags ) )
-						wp_send_json_error();
-					else
-						wp_send_json_success( $tags );
+					case 'image-tags':
+						$tags = $this->image_tags_get();
+						if ( empty ( $tags ) )
+							wp_send_json_error();
+						else
+							wp_send_json_success( $tags );
 
+				}
 			}
 
 		}
