@@ -19,7 +19,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			load_plugin_textdomain( 'gga-dynamic-placeholder-images' );
 
-			add_action( 'init', array( $this, 'delete_cache_directory' ) );
+			add_action( 'init', array( $this, 'get_cache_directory_size' ) );
 			add_action( 'init', array( $this, 'register_rewrites' ) );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
@@ -500,11 +500,29 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function create_cache_directory() {
+		function init_filesystem() {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			$access_type = get_filesystem_method();
+			if( $access_type === 'direct' ) {
+				$upload_dir = wp_upload_dir();
+				$creds = request_filesystem_credentials( $upload_dir['url'] );
+				/* initialize the API */
+				return WP_Filesystem( $creds );
+			} else {
+				return false;
+			}
+		}
+
+
+		function get_cache_directory() {
 			$cache_directory = apply_filters( $this->plugin_name . '-setting-get', 'gga-dynamic-placeholder-images', $this->plugin_name . '-settings-cache', 'cache-directory' );
 			$upload_dir = wp_upload_dir();
+			return path_join( $upload_dir['basedir'], $cache_directory );
+		}
 
-			$cache_directory = path_join( $upload_dir['basedir'], $cache_directory );
+
+		function create_cache_directory() {
+			$cache_directory = $this->get_cache_directory();
 			if ( wp_mkdir_p( $cache_directory ) ) {
 				foreach( $this->cache_width_directories() as $width ) {
 					$this->create_cache_width_directory( $cache_directory, $width );
@@ -529,31 +547,72 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		function delete_cache_directory() {
 
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-
-			$cache_directory = apply_filters( $this->plugin_name . '-setting-get', 'gga-dynamic-placeholder-images', $this->plugin_name . '-settings-cache', 'cache-directory' );
-			$upload_dir = wp_upload_dir();
-
-			$cache_directory = trailingslashit( trailingslashit( $upload_dir['basedir'] ) . $cache_directory );
-
-			$access_type = get_filesystem_method();
-			if( $access_type === 'direct' ) {
-				$creds = request_filesystem_credentials( $upload_dir['url'] );
-
-				/* initialize the API */
-				if ( ! WP_Filesystem($creds) ) {
-					/* any problems and we exit */
-					return false;
-				}
-
+			if ( $this->init_filesystem() ) {
 				global $wp_filesystem;
+				$cache_directory = $this->get_cache_directory();
 				/* do our file manipulations below */
 				return $wp_filesystem->rmdir( $cache_directory, true );
+			} else {
+				return false;
+			}
+
+		}
+
+
+		function purge_cache_directory() {
+			if ( $this->delete_cache_directory() ) {
+				return $this->create_cache_directory();
+			}
+			else {
+				return false;
+			}
+		}
+
+		function get_cache_directory_contents() {
+			if ( $this->init_filesystem() ) {
+				$cache_directory = $this->get_cache_directory();
+				global $wp_filesystem;
+				return $wp_filesystem->dirlist( $cache_directory, false, true );
+			} else {
+				return false;
+			}
+
+		}
+
+
+		function get_cache_directory_size() {
+			$list = $this->get_cache_directory_contents();
+			if ( !empty( $list ) ) {
+
+				$size = $this->get_directory_size( $list );
+				echo size_format( $size );
+				die();
+				return $size;
+			} else {
+				return -1;
+			}
+
+			die();
+		}
+
+
+		function get_directory_size( $list ) {
+			$size = 0;
+
+			if ( ! empty( $list ) ) {
+
+				foreach ($list as $key => $item) {
+					if ( $item['type'] == 'f' ) {
+						$size += $item['size'];
+					} else if ( $item['type'] == 'd' && ! empty( $item['files'] ) ) {
+						$size += $this->get_directory_size( $item['files'] );
+					}
+				}
 
 			}
 
-			return false;
 
+			return $size;
 		}
 
 
