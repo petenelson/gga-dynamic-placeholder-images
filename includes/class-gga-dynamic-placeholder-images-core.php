@@ -19,7 +19,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			load_plugin_textdomain( 'gga-dynamic-placeholder-images' );
 
-			add_action( 'init', array( $this, 'get_cache_directory_for_width' ) );
+			//add_action( 'init', array( $this, 'get_cache_directory_for_width' ) );
 			add_action( 'init', array( $this, 'register_rewrites' ) );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
@@ -51,7 +51,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			$action = $wp_query->get( 'gga-dynamic-image' );
 
 			if ( ! empty( $action ) ) {
-				$this->handle_dynamic_image();
+				$width = intval( $wp_query->get( 'gga-dynamic-image-width' ) );
+				$height = intval( $wp_query->get( 'gga-dynamic-image-height' ) );
+				$slug = sanitize_key( $wp_query->get( 'gga-dynamic-image-slug' ) );
+
+				// bounds checking, defaults to a max of 2000x2000
+				$max_width = $this->get_max_width();
+				$max_height = $this->get_max_height();
+				$width = $width > $max_width ? $max_width : $width;
+				$height = $height > $max_height ? $max_height : $height;
+
+				$this->handle_dynamic_image( $width, $height, $slug );
 			}
 
 		}
@@ -63,13 +73,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function handle_dynamic_image() {
+		function handle_dynamic_image( $width, $height, $slug ) {
 
 			global $wp_query;
-
-			$width = intval( $wp_query->get( 'gga-dynamic-image-width' ) );
-			$height = intval( $wp_query->get( 'gga-dynamic-image-height' ) );
-			$slug = sanitize_key( $wp_query->get( 'gga-dynamic-image-slug' ) );
 
 
 			if ( $width !== 0 && $height !== 0 ) {
@@ -93,7 +99,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				if ( $id === 0 || $id === false ) {
 					$id = $this->get_random_image_id();
 				}
-
 
 				if ( $id === 0 || $id === false || $id === NULL ) {
 					$this->show_404_and_die();
@@ -269,7 +274,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			$meta = wp_get_attachment_metadata( $id );
 			$sizes = $meta['sizes'];
 
-			if ( $sizes[$image_size_name] ) {
+			if ( isset( $sizes[$image_size_name] ) ) {
 
 				// log some stats
 				$this->log_image_view( $w, $h );
@@ -384,8 +389,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			$exists = $this->image_size_exists( $id, $w, $h );
 
-
-
 			if ( !$exists ) {
 				$image = get_post( $id );
 				if ( $image ) {
@@ -394,6 +397,18 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 					// don't call wp_generate_attachment_metadata because it regenerates existing images
 					$metadata = wp_get_attachment_metadata( $id );
+
+					if ( false ) {
+						// this will force the resizer to conform to the dimensions of the original image
+						// we may need to add code here to scale up the original image before resizing/cropping
+						if ( ! empty( $metadata['width'] ) && $w > $metadata['width'] ) {
+							$w = $metadata['width'];
+						}
+
+						if ( ! empty( $metadata['height'] ) && $w > $metadata['height'] ) {
+							$h = $metadata['height'];
+						}
+					}
 
 					$resized =  image_make_intermediate_size( $fullsizepath, $w, $h, $crop=true );
 					if ( false !== $resized ) {
@@ -616,8 +631,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			if ( ! is_dir( $width_directory ) ) {
 				wp_mkdir_p( $width_directory );
 			}
-			var_dump($width_directory);
-			die();
+
+			return $width_directory;
 		}
 
 		function get_max_width() {
