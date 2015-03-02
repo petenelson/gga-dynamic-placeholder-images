@@ -2,8 +2,6 @@ Rewrite settings to have tabs for general, endpoints, cache, API, help, etc
 
 
 
-Save resized image to cache directory
-Read generated image from cache directory
 Flush cache directory
 Auto-clean cache directory to prevent it from getting larger than a configured size
 

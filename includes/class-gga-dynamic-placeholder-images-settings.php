@@ -169,12 +169,12 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		}
 
 
-		function setting_is_enabled($enabled, $key, $setting) {
+		function setting_is_enabled( $enabled, $key, $setting ) {
 			return '1' === $this->setting_get('0', $key, $setting);
 		}
 
 
-		function setting_get($value, $key, $setting) {
+		function setting_get( $value, $key, $setting ) {
 
 			$args = wp_parse_args( get_option($key),
 				array(
@@ -182,7 +182,7 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 				)
 			);
 
-			return $args[$setting];
+			return $args[ $setting ];
 		}
 
 
