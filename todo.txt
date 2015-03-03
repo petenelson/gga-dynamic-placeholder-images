@@ -1,17 +1,3 @@
-Rewrite settings to have tabs for general, endpoints, cache, API, help, etc
-
-
-
-Flush cache directory
 Auto-clean cache directory to prevent it from getting larger than a configured size
-
 Min and max resolution configurable
-
 Attribution shortcode HTML, templatize it, and make it overrideable
-
-
-Activation hook, uninstall.php
-
-Dashboard widget with stats, cache size, etc
-
-
