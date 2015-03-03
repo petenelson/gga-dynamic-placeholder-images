@@ -453,25 +453,49 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function image_attribution_shortcode() {
+		function image_attribution_shortcode( $args ) {
+
+			$args = wp_parse_args( $args, array(
+					'width' => 300,
+					'height' => 300,
+					'columns' => 3,
+					'class' => 'gga-dynamic-images-attribution',
+				)
+			);
+
+			$int_args = array( 'width', 'height', 'columns' );
+			foreach ( $int_args as $key ) {
+				$args[ $key ] = intval( $args[ $key ] );
+			}
+
+			if ( $args['columns'] < 1 )
+				$args['columns'] = 1;
+
+			if ( $args['width'] < 1 )
+				$args['width'] = 1;
+
+			if ( $args['height'] < 1 )
+				$args['height'] = 1;
+
+			$args['class'] = esc_attr( $args['class'] );
 
 			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
 
-			$html = '<div class="gga-dynamic-images-attribution">';
+			$html = '<div class="' . $args['class'] . '">';
 
-			$args = $this->image_query_args();
-			$args['posts_per_page'] = -1;
-			$args['orderby'] = 'name';
-			$args['order'] = 'asc';
+			$query_args = $this->image_query_args();
+			$query_args['posts_per_page'] = -1;
+			$query_args['orderby'] = 'name';
+			$query_args['order'] = 'asc';
 
-			$posts = $this->query_images( $args );
+			$posts = $this->query_images( $query_args );
 
 			foreach( $posts as $post ) {
 
 				$id = $post->ID;
 
 				$tag = $post->post_name;
-				$image_url = site_url( $this->get_base_url() . '200/200/' . $tag );
+				$image_url = site_url( $this->get_base_url() . $args['width'] . '/' . $args['height'] . '/' . $tag );
 				$cc_url = '';
 				$attrib_to = get_post_meta( $id, $this->meta_prefix . 'attribute_to', true );
 				$attrib_url = get_post_meta( $id, $this->meta_prefix . 'attribute_url', true );
@@ -484,8 +508,11 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 				$html .= "
 				<div class=\"attribImage\">
-					<a class=\"meat\" href=\"{$image_url}\"><img class=\"meat\" src=\"{$image_url}\" alt=\"\" width=\"200\" height=\"200\" /></a>
-					tag: {$tag}<br/>";
+					<a class=\"image-link\" href=\"{$image_url}\"><img class=\"image-thumbnail\" src=\"{$image_url}\" alt=\"\" width=\"" . $args['width'] . "\" height=\"" . $args['height'] . "\" /></a>
+					<div class=\"image-tag\">tag: {$tag}</div>";
+
+				if ( $attrib_to !== false && !empty( $attrib_to ) )
+					$html .= "<div class=\"attribute-to\">by <a href=\"{$attrib_url}\" target=\"_blank\">" . htmlspecialchars( $attrib_to ) . "</a></div>";
 
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) )
 					$html .= '<span class="cc cc-by" title="' . __( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_by' ) . '</span>';
@@ -497,10 +524,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 					$html .= '<span class="cc cc-nc" title="' . __( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_nc' ) . '</span>';
 
 				if ( $cc_url != '' )
-					$html .= "<a href=\"{$cc_url}\" target=\"_blank\">" . __( 'Some rights reserved', 'gga-dynamic-placeholder-images' ) . "</a><br/>";
-
-				if ( $attrib_to !== false && !empty( $attrib_to ) )
-					$html .= "by <a href=\"{$attrib_url}\" target=\"_blank\">" . htmlspecialchars( $attrib_to ) . "</a>";
+					$html .= "<a class=\"some-rights-reserved\" href=\"{$cc_url}\" target=\"_blank\">" . __( 'Some rights reserved', 'gga-dynamic-placeholder-images' ) . "</a><br/>";
 
 				$html .= '</div><!-- .attribImage -->';
 
@@ -509,11 +533,16 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 
 
-			$html .= '<div class="clear"></div>
-			</div><!-- #attribImages -->';
+			$html .= '</div>';
 
+			$itemwidth = $args['columns'] > 0 ? floor(100/$args['columns']) : 100;
 
-			wp_reset_postdata();
+			$html .= "<style>
+				.gga-dynamic-images-attribution .attribImage { width: {$itemwidth}% }
+			</style>";
+
+			// let's the output be modified if-needed
+			$html = apply_filters( $this->plugin_name . '-attribution-shortcode-html', $html, $posts );
 
 			return $html;
 

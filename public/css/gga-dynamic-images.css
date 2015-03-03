@@ -1,3 +1,18 @@
+.gga-dynamic-images-attribution {
+	margin: auto;
+	overflow: hidden;
+}
+
+.gga-dynamic-images-attribution .attribImage {
+	margin: auto;
+	float: left;
+	margin-top: 10px;
+	padding: 1.5%;
+	overflow: hidden;
+}
+
+
+
 .gga-dynamic-images-attribution .cc {
 	display: inline-block;
 	margin: 0.15em
@@ -9,5 +24,9 @@
 
 .gga-dynamic-images-attribution .cc:last-of-type {
 	margin-right: 0.5em
+}
+
+.gga-dynamic-images-attribution .some-rights-reserved {
+	font-size: 0.6em;
 }
 
