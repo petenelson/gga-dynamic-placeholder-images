@@ -18,7 +18,7 @@
 
 if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
 
-$includes = array( 'core', 'api', 'attachment-meta', 'settings' );
+$includes = array( 'core', 'api', 'attachment-meta', 'settings', 'dashboard-widgets', 'stats' );
 foreach ($includes as $include) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gga-dynamic-placeholder-images-' . $include . '.php';
 }
@@ -51,4 +51,19 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 	$gga_dynamic_placeholder_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_settings, 'plugins_loaded' ) );
+}
+
+
+// Dashboard widgets
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
+	$gga_dynamic_placeholder_images_dashboard_widgets = new GGA_Dynamic_Placeholder_Images_Dashboard_Widgets();
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_dashboard_widgets, 'plugins_loaded' ) );
+}
+
+
+// Dashboard widgets
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Stats' ) ) {
+	$gga_dynamic_placeholder_images_stats = new GGA_Dynamic_Placeholder_Images_Stats();
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_stats, 'plugins_loaded' ) );
+	register_activation_hook( __FILE__, array( $gga_dynamic_placeholder_images_stats, 'activation_hook' ) );
 }

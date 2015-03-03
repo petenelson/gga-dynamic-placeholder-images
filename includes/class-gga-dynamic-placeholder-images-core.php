@@ -16,11 +16,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		var $plugin_base_url = '';
 
 
-		function plugins_loaded() {
+		public function plugins_loaded() {
 
 			load_plugin_textdomain( 'gga-dynamic-placeholder-images' );
 
-			//add_action( 'init', array( $this, 'get_cache_directory_for_width' ) );
 			add_action( 'init', array( $this, 'register_rewrites' ) );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
@@ -30,6 +29,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			// for generating Creative Commons icons
 			add_filter( $this->plugin_name . '-cc-img-html', array( $this, 'cc_img_html' ), 10, 2 );
+
+			// allows cache interaction
+			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
+			add_filter( $this->plugin_name . '-get-cache-size', array( $this, 'get_cache_directory_size' ) );
 
 		}
 
@@ -81,7 +84,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			if ( $width !== 0 && $height !== 0 ) {
 
-				$this->load_image_sizes();
+				//$this->load_image_sizes();
 				$id = 0;
 
 				if ( $slug === 'random' ) {
@@ -277,9 +280,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			if ( !empty( $sizes ) && ! empty( $sizes[ $image_size_name ] ) ) {
 
-				// log some stats
-				$this->log_image_view( $w, $h );
-
 				$filename = $this->get_cached_file_path( $sizes[ $image_size_name ]['file'], $w );
 				if ( ! file_exists( $filename ) ) {
 					// regenrate a missing image
@@ -300,39 +300,20 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 					header( 'Last-Modified:Mon, 20 Aug 2012 19:20:21 GMT' );
 				}
 
+
 				ob_clean();
 				flush();
 				readfile( $filename );
+
+				// fire action to allow stats logging
+				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $w, 'height' => $h, 'bytes' => $filesize ) );
+
 				die();
 
 			}
 			else {
 				$this->show_404_and_die();
 			}
-
-		}
-
-
-		function log_image_view( $w, $h ) {
-
-			$size = "{$w}-{$h}";
-			$key = '_gga_placeholder_image_views_for_'  . gmdate( 'Y-m-d', time() );
-			$opt = get_option( $key );
-			$new = false;
-			if ( false === $opt ) {
-				$opt = array();
-				$new = true;
-			}
-
-			if ( !isset( $opt[$size] ) )
-				$opt[$size] = 0;
-
-			$opt[$size]++;
-
-			if ( $new )
-				add_option( $key, $opt, $deprecated = '', $autoload = 'no' );
-			else
-				update_option( $key, $opt );
 
 		}
 
@@ -376,7 +357,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			$this->sizes[] = $size;
 			//update_option( 'gga-dynamic-image-sizes',  $this->sizes);
-			$this->save_images_sizes();
+			//$this->save_images_sizes();
 
 			add_image_size( $image_size_name, $w, $h, true );
 
@@ -451,6 +432,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 
 		function move_resized_to_cache( $resized_filename, $fullsizepath, $width ) {
+			delete_site_transient( $this->plugin_name . '-cache-size' );
 			rename( path_join( dirname($fullsizepath), $resized_filename ), path_join( $this->get_cache_directory_for_width( $width ), $resized_filename ) );
 		}
 
@@ -588,7 +570,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			if ( $this->init_filesystem() ) {
 				global $wp_filesystem;
 				$cache_directory = $this->get_cache_directory();
-				/* do our file manipulations below */
+				delete_site_transient( $this->plugin_name . '-cache-size' );
 				return $wp_filesystem->rmdir( $cache_directory, true );
 			} else {
 				return false;
@@ -617,13 +599,20 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_cache_directory_size() {
+		function get_cache_directory_size( $size ) {
+			$transient = $this->plugin_name . '-cache-size';
+			$size = get_site_transient( $transient );
+			if ( ! empty( $size ) ) {
+				return $size;
+			}
+
 			$list = $this->get_cache_directory_contents();
 			if ( !empty( $list ) ) {
 				$size = $this->get_directory_size( $list );
+				set_site_transient( $transient, $size, MINUTE_IN_SECONDS * 15 );
 				return $size;
 			} else {
-				return -1;
+				return $size;
 			}
 		}
 

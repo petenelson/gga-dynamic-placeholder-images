@@ -10,20 +10,26 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		private $settings_page 			= 'gga-dynamic-images-settings';
 		private $settings_key_general 	= 'gga-dynamic-images-settings-general';
 		private $settings_key_api 		= 'gga-dynamic-images-settings-api';
+		private $settings_key_cache		= 'gga-dynamic-images-settings-cache';
 		private $settings_key_help 		= 'gga-dynamic-images-settings-help';
 		private $plugin_settings_tabs 	= array();
 
 
 		public function plugins_loaded() {
+
+			// filters to expose plugin settings
+			add_filter( $this->plugin_name . '-setting-is-enabled', array( $this, 'setting_is_enabled' ), 10, 3 );
+			add_filter( $this->plugin_name . '-setting-get', array( $this, 'setting_get' ), 10, 3 );
+
 			// admin menus
 			if ( is_admin() ) {
 				add_action( 'admin_init', array( $this, 'admin_init' ) );
 				add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 				add_action( 'admin_notices', array( $this, 'activation_admin_notice' ) );
-			}
 
-			add_filter( $this->plugin_name . '-setting-is-enabled', array( $this, 'setting_is_enabled' ), 10, 3 );
-			add_filter( $this->plugin_name . '-setting-get', array( $this, 'setting_get' ), 10, 3 );
+				$this->handle_admin_actions();
+
+			}
 
 		}
 
@@ -39,7 +45,6 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		}
 
 
-
 		public function activation_hook() {
 
 			// create default settings
@@ -52,9 +57,6 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 				'api-endpoint' => 'images-api',
 			), '', $autoload = 'no' );
 
-
-
-			add_option( $this->settings_key_filler, array('custom-words' => $custom, 'filler-words' => $filler), '', $autoload = 'no' );
 
 			// add an option so we can show the activated admin notice
 			add_option( $this->plugin_name . '-plugin-activated', '1' );
@@ -76,21 +78,54 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		}
 
 
+		function handle_admin_action_notices() {
+			global $gga_dynamic_images_admin_notice;
+			if ( ! empty( $gga_dynamic_images_admin_notice ) ) {
+				?>
+					<div class="updated">
+						<p><?php _e('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images' ) ?>: <?php echo  $gga_dynamic_images_admin_notice; ?></p>
+					</div>
+				<?php
+			}
+		}
+
+
 		public function deactivation_hook() {
 			// placeholder in case we need deactivation code
+		}
+
+
+		function handle_admin_actions() {
+
+			if ( ! empty( $_REQUEST[$this->plugin_name . '-action'] ) && current_user_can( 'manage_options' ) && wp_verify_nonce( $_REQUEST[$this->plugin_name . '-nonce'], $_REQUEST[$this->plugin_name . '-action'] ) ) {
+
+				global $gga_dynamic_images_admin_notice;
+
+				switch ( $_REQUEST[$this->plugin_name . '-action'] ) {
+					case 'purge-cache':
+						do_action( $this->plugin_name . '-purge-cache' );
+						$gga_dynamic_images_admin_notice = __( 'Cache Purged', 'gga-dynamic-placeholder-images' );
+						break;
+				}
+
+				add_action( 'admin_notices', array( $this, 'handle_admin_action_notices' ) );
+
+			}
+
 		}
 
 
 		function admin_init() {
 			$this->register_general_settings();
 			$this->register_api_settings();
+			$this->register_cache_settings();
 			$this->register_help_tab();
 		}
 
 
 		function register_general_settings() {
 			$key = $this->settings_key_general;
-			$this->plugin_settings_tabs[$key] = __('General', 'gga-dynamic-placeholder-images');
+			$this->plugin_settings_tabs[$key] = __( 'General', 'gga-dynamic-placeholder-images' );
 
 			register_setting( $key, $key, array( $this, 'general_settings_sanitize' ) );
 
@@ -101,7 +136,7 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 			$permalink_structure = get_option( 'permalink_structure' );
 			$permalink_warning = empty($permalink_structure) ? ' (please anable any non-default Permalink structure)' : '';
 
-			add_settings_field( 'name', __('Your Dynamic Placholder Name', 'gga-dynamic-placeholder-images'), array( $this, 'settings_input' ), $key, $section,
+			add_settings_field( 'name', __( 'Your Dynamic Placholder Name', 'gga-dynamic-placeholder-images'), array( $this, 'settings_input' ), $key, $section,
 				array('key' => $key, 'name' => 'name', 'size' => 20, 'maxlength' => 50, 'after' => 'Example: Bacon Mockup, Place Kitten'));
 
 
@@ -154,6 +189,18 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 			return $settings;
 		}
 
+
+		function register_cache_settings() {
+			$key = $this->settings_key_cache;
+			$this->plugin_settings_tabs[$key] = __( 'Cache', 'gga-dynamic-placeholder-images' );
+
+			register_setting( $key, $key );
+
+			$section = 'cache';
+
+			add_settings_section( $section, '', array( $this, 'section_header' ), $key );
+
+		}
 
 
 		function register_help_tab() {
@@ -272,7 +319,7 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 
 
 		function admin_menu() {
-			add_options_page( __('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images'), __('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images'), 'manage_options', $this->settings_page, array($this, 'options_page' ), 30);
+			add_options_page( __('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images' ), __('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images'), 'manage_options', $this->settings_page, array($this, 'options_page' ), 30);
 		}
 
 
@@ -286,8 +333,9 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 					<?php settings_fields( $tab ); ?>
 					<?php do_settings_sections( $tab ); ?>
 					<?php
-						if ($this->settings_key_help !== $tab)
+						if ( $this->settings_key_help !== $tab && $tab !== $this->settings_key_cache ) {
 							submit_button(__('Save Settings', 'gga-dynamic-placeholder-images'), 'primary', 'submit', true);
+						}
 					?>
 				</form>
 			</div>
@@ -314,6 +362,9 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		function section_header($args) {
 
 			switch ($args['id']) {
+				case 'cache';
+					include_once 'admin-cache.php';
+					break;
 				case 'help';
 					include_once 'admin-help.php';
 					break;
