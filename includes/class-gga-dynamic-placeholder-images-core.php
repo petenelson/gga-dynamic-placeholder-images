@@ -24,6 +24,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 			add_action( 'delete_attachment', array( $this, 'delete_attachment' ) );
 
+			// generate a URL to an image
+			add_filter( $this->plugin_name . '-image-url', array( $this, 'generate_image_url' ), 10, 4 );
+
 			// displays the image attribution list
 			add_shortcode( 'gga-image-attribution', array( $this, 'image_attribution_shortcode' ) );
 
@@ -71,7 +74,13 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_base_url() {
+		function generate_image_url( $url, $width, $height, $tag = '' ) {
+			$url = site_url( $this->get_base_url() . intval( $width ) . '/' . intval( $height ) . '/' . sanitize_key( $tag ) );
+			return $url;
+		}
+
+
+		function get_base_url( $base_url = '' ) {
 			$base_url = apply_filters( $this->plugin_name . '-setting-get', 'dynamic-image', 'gga-dynamic-images-settings-general', 'base-url' );
 			return ! empty( $base_url ) ? $base_url . '/' : '';
 		}
@@ -502,7 +511,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				$id = $post->ID;
 
 				$tag = $post->post_name;
-				$image_url = site_url( $this->get_base_url() . $args['width'] . '/' . $args['height'] . '/' . $tag );
+				//$image_url = site_url( $this->get_base_url() . $args['width'] . '/' . $args['height'] . '/' . $tag . '/' );
+				$image_url = apply_filters( $this->plugin_name . '-image-url', '', $args['width'], $args['height'], $tag );
+
 				$cc_url = '';
 				$attrib_to = get_post_meta( $id, $this->meta_prefix . 'attribute_to', true );
 				$attrib_url = get_post_meta( $id, $this->meta_prefix . 'attribute_url', true );

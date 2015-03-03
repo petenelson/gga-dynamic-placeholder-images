@@ -50,6 +50,7 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 // handles Admin Settings pages and filters to get plugin settings
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 	$gga_dynamic_placeholder_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
+	$gga_dynamic_placeholder_images_settings->plugin_base_dir = plugin_dir_path( __FILE__ );
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_settings, 'plugins_loaded' ) );
 }
 

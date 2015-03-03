@@ -14,6 +14,9 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		private $settings_key_help 		= 'gga-dynamic-images-settings-help';
 		private $plugin_settings_tabs 	= array();
 
+		var $plugin_base_url = '';
+		var $plugin_base_dir = '';
+
 
 		public function plugins_loaded() {
 
@@ -362,26 +365,19 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		function section_header($args) {
 
 			switch ($args['id']) {
+				case 'general';
+					include_once $this->plugin_base_dir . 'admin/partials/admin-general-header.php';
+					break;
 				case 'cache';
-					include_once 'admin-cache.php';
+					include_once $this->plugin_base_dir . 'admin/partials/admin-cache-header.php';
+					break;
+				case 'api';
+					include_once $this->plugin_base_dir . 'admin/partials/admin-api-header.php';
 					break;
 				case 'help';
-					include_once 'admin-help.php';
-					break;
-				case 'api':
-					$output = __('Allows for a JSON API to your image generator.', 'gga-dynamic-placeholder-images');
-					$endpoint = $this->setting_get( '', $this->settings_key_api, 'api-endpoint' );
-					$enabled = $this->setting_is_enabled( '', $this->settings_key_api, 'api-enabled' );
-					if ( ! empty( $enabled ) ) {
-						$output .= '<br/>' . __('Example', 'gga-dynamic-placeholder-images') . ': ';
-						$url = home_url( $endpoint ) . '/image-tags/';
-						$output .= '<a target="_blank" href="' . $url . '">' . $url . '</a>';
-					}
+					include_once $this->plugin_base_dir . 'admin/partials/admin-help-header.php';
 					break;
 			}
-
-			if (!empty($output))
-				echo '<p class="settings-section-header">' . $output . '</p>';
 
 		}
 
