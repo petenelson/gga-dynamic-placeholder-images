@@ -455,6 +455,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		function image_attribution_shortcode( $args ) {
 
+			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
+
 			$args = wp_parse_args( $args, array(
 					'width' => 300,
 					'height' => 300,
@@ -479,9 +481,14 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			$args['class'] = esc_attr( $args['class'] );
 
-			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
+			$itemwidth = $args['columns'] > 0 ? floor(100/$args['columns']) : 100;
 
-			$html = '<div class="' . $args['class'] . '">';
+			ob_start();
+			?>
+
+			<div class="<?php echo $args['class']; ?>">
+
+			<?php
 
 			$query_args = $this->image_query_args();
 			$query_args['posts_per_page'] = -1;
@@ -506,40 +513,52 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) );
 					$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
 
-				$html .= "
-				<div class=\"attribImage\">
-					<a class=\"image-link\" href=\"{$image_url}\"><img class=\"image-thumbnail\" src=\"{$image_url}\" alt=\"\" width=\"" . $args['width'] . "\" height=\"" . $args['height'] . "\" /></a>
-					<div class=\"image-tag\">tag: {$tag}</div>";
+				?>
+				<div class="attribImage">
+					<div class="attribImage-inner">
 
-				if ( $attrib_to !== false && !empty( $attrib_to ) )
-					$html .= "<div class=\"attribute-to\">by <a href=\"{$attrib_url}\" target=\"_blank\">" . htmlspecialchars( $attrib_to ) . "</a></div>";
+					<a class="image-link" href="<?php echo $image_url; ?>"><img class="image-thumbnail" src="<?php echo $image_url; ?>" alt="<?php echo esc_attr( $post->post_name ); ?>" width="<?php echo $args['width']; ?>" height="<?php echo $args['height']; ?>" /></a>
+					<div class="image-meta">
+						<div class="image-tag">tag: <?php echo esc_html( $tag ); ?></div>
 
-				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) )
-					$html .= '<span class="cc cc-by" title="' . __( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_by' ) . '</span>';
+					<?php if ( $attrib_to !== false && !empty( $attrib_to ) ) { ?>
+						<div class="attribute-to">by <a href="<?php echo $attrib_url ?>" target="_blank"><?php echo esc_html( $attrib_to ); ?></a></div>
+					<?php } ?>
 
-				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) )
-					$html .= '<span class="cc cc-sa" title="' . __( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_sa' ) . '</span>';
+					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) ) { ?>
+						<span class="cc cc-by" title="<?php _e( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_by' ); ?></span>
+					<?php } ?>
 
-				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_nc', true ) )
-					$html .= '<span class="cc cc-nc" title="' . __( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ) . '">' . $this->cc_img_html( '', 'cc_nc' ) . '</span>';
+					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) ) { ?>
+						<span class="cc cc-sa" title="<?php _e( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_sa' ); ?></span>
+					<?php } ?>
 
-				if ( $cc_url != '' )
-					$html .= "<a class=\"some-rights-reserved\" href=\"{$cc_url}\" target=\"_blank\">" . __( 'Some rights reserved', 'gga-dynamic-placeholder-images' ) . "</a><br/>";
+					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_nc', true ) ) { ?>
+						<span class="cc cc-nc" title="<?php _e( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_nc' ); ?></span>
+					<?php } ?>
 
-				$html .= '</div><!-- .attribImage -->';
+					<?php if ( $cc_url != '' ) { ?>
+						<a class="some-rights-reserved" href="<?php echo $cc_url ?>" target="_blank"><?php _e( 'Some rights reserved', 'gga-dynamic-placeholder-images' ); ?></a>
+					<?php } ?>
+					</div>
 
+					</div>
+				</div><!-- .attribImage -->
 
-			}
+				<?php
 
+			} // end foreach $posts
 
+			?>
+			</div><!-- end of attribution images -->
 
-			$html .= '</div>';
+			<style>
+				.gga-dynamic-images-attribution .attribImage { max-width: <?php echo $itemwidth - 1; ?>% }
+			</style>
+			<?php
 
-			$itemwidth = $args['columns'] > 0 ? floor(100/$args['columns']) : 100;
-
-			$html .= "<style>
-				.gga-dynamic-images-attribution .attribImage { width: {$itemwidth}% }
-			</style>";
+			$html = ob_get_contents();
+			ob_end_clean();
 
 			// let's the output be modified if-needed
 			$html = apply_filters( $this->plugin_name . '-attribution-shortcode-html', $html, $posts );
