@@ -46,6 +46,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			// create default settings
 			add_option( $this->settings_key_general, array(
 				'name' => 'Dynamic Images',
+				'base-url' => 'dynamic-images',
 			), '', $autoload = 'no' );
 
 			add_option( $this->settings_key_api, array(
@@ -138,13 +139,15 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			$permalink_structure = get_option( 'permalink_structure' );
 			$permalink_warning = empty($permalink_structure) ? ' (please anable any non-default Permalink structure)' : '';
 
+			/*
 			add_settings_field( 'name', __( 'Your Dynamic Placholder Name', 'gga-dynamic-placeholder-images'), array( $this, 'settings_input' ), $key, $section,
 				array('key' => $key, 'name' => 'name', 'size' => 20, 'maxlength' => 50, 'after' => 'Example: Bacon Mockup, Place Kitten'));
+			*/
 
 
-			$after = 'Example: dynamic-images (ex: /dynamic-images/200/200) or leave blank to operate at the root of your site.' . $permalink_warning;
+			$after = __( 'Example: dynamic-images (ex: /dynamic-images/300/300/) or leave blank to operate at the root of your site.<br/><br/>NOTE: A blank URL may prevent other numeric-based URLs from working.  Use with caution.', 'gga-dynamic-placeholder-images' ) . $permalink_warning;
 
-			add_settings_field( 'base-url', __('Base URL', 'gga-dynamic-placeholder-images'), array( $this, 'settings_input' ), $key, $section,
+			add_settings_field( 'base-url', __( 'Base URL', 'gga-dynamic-placeholder-images' ), array( $this, 'settings_input' ), $key, $section,
 				array('key' => $key, 'name' => 'base-url', 'size' => 20, 'maxlength' => 50, 'after' => $after));
 
 		}

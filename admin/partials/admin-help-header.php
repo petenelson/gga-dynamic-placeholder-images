@@ -52,12 +52,12 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 	</p>
 
 
-	<h3 class="title"><?php _e( 'Cache', 'gga-dynamic-placeholder-images' ); ?></h3>
+	<h3 class="title" id="gga-help-cache"><?php _e( 'Cache', 'gga-dynamic-placeholder-images' ); ?></h3>
 	<p>
 		<?php _e( 'The plugin will generate resized images to the <strong>gga-dynamic-placeholder-images</strong> folder in the uploads folder.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'For better performance, future requests for a specific image size will use the cached resized image rather than having to generate a new one each time.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php printf( __( 'These cached images can be purged on the <a href="%1s">Cache</a> tab to clear up disk space.', 'gga-dynamic-placeholder-images' ), admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-cache' ) ) ?>
-		<?php _e( 'The plugin will also associate the requested image size to a randomly chosen image.', 'gga-dynamic-placeholder-images' ) ?>
+		<?php _e( 'The plugin will also associate a requested image size to a randomly chosen image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'Future requests for the same image size will return the same image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'These associations can also be purged on the Cache tab.', 'gga-dynamic-placeholder-images' ) ?>
 		<br/><br/>
@@ -106,7 +106,7 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 	<p>
 		<?php _e( 'E-Mail', 'gga-dynamic-placeholder-images' ) ?>: <a href="mailto:pete@petenelson.com">pete@petenelson.com</a><br/>
 		<?php _e( 'Twitter', 'gga-dynamic-placeholder-images' ) ?>: <a href="https://twitter.com/GunGeekATX" target="_blank">@GunGeekATX</a><br/>
-		<?php _e( 'GitHub', 'gga-dynamic-placeholder-images' ) ?>: <a href="https://github.com/petenelson/wp-any-ipsum" target="_blank">https://github.com/petenelson/wp-any-ipsum</a><br/>
+		<?php _e( 'GitHub', 'gga-dynamic-placeholder-images' ) ?>: <a href="https://github.com/petenelson/gga-dynamic-placeholder-images" target="_blank">https://github.com/petenelson/gga-dynamic-placeholder-images</a><br/>
 	</p>
 
 </div>
