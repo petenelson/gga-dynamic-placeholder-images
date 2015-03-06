@@ -26,42 +26,19 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
 
-			$args = wp_parse_args( $args, array(
-					'width' => 300,
-					'height' => 300,
-					'columns' => 3,
-					'class' => 'gga-dynamic-images-attribution',
-				)
-			);
+			$args = wp_parse_args( $args, $this->default_shortcode_args() );
 
 
 			$args = $this->sanitize_args( $args );
-
 
 			ob_start();
 			?>
 
 			<div class="<?php echo $args['class']; ?>">
-
-			<?php
-
-			$posts = $this->query_posts( );
-
-			foreach( $posts as $post ) {
-
-				$cc_url = '';
-
-				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_by', true ) );
-					$cc_url = 'http://creativecommons.org/licenses/by/2.0/';
-
-				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_sa', true ) );
-					$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
-
-				$this->echo_attribution_item_html( $post, $args, $cc_url );
-
-			} // end foreach $posts
-
-			?>
+				<?php
+					$posts = $this->query_posts( );
+					$this->echo_attribution_items_html( $posts, $args );
+				?>
 			</div><!-- end of attribution images -->
 
 			<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $args['columns'] > 0 ? floor( 100 / $args['columns'] ) : 100 ) - 1; ?>% } </style>
@@ -78,11 +55,39 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 		}
 
 
-		private function echo_attribution_item_html( $post, $args, $cc_url ) {
-			$attrib_to = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_to', true );
-			$attrib_url = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_url', true );
-			$image_url = apply_filters( $this->plugin_name . '-image-url', '', $args['width'], $args['height'], $post->post_name );
+		private function default_shortcode_args() {
+			return array(
+				'width' => 300,
+				'height' => 300,
+				'columns' => 3,
+				'class' => 'gga-dynamic-images-attribution',
+			);
+		}
 
+
+		private function echo_attribution_items_html( $posts, $args ) {
+			foreach( $posts as $post ) {
+
+				$attrib_to = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_to', true );
+				$attrib_url = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_url', true );
+
+				$cc_url = '';
+
+				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_by', true ) );
+					$cc_url = 'http://creativecommons.org/licenses/by/2.0/';
+
+				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_sa', true ) );
+					$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
+
+				$this->echo_attribution_item_html( $post, $args, $cc_url, $attrib_to, $attrib_url );
+
+			} // end foreach $posts
+
+		}
+
+
+		private function echo_attribution_item_html( $post, $args, $cc_url, $attrib_to, $attrib_url ) {
+			$image_url = apply_filters( $this->plugin_name . '-image-url', '', $args['width'], $args['height'], $post->post_name );
 			?>
 			<div class="attribImage">
 				<div class="attribImage-inner">
