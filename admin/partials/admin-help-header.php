@@ -52,6 +52,16 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 	</p>
 
 
+	<h3 class="title"><?php _e( 'Cache', 'gga-dynamic-placeholder-images' ); ?></h3>
+	<p>
+		<?php _e( 'The plugin will generate resized images to the <strong>gga-dynamic-placeholder-images</strong> folder in the uploads folder.', 'x' ) ?>
+		<?php _e( 'For better performance, future requests for a specific image size will use the cached resized image rather than having to generate a new one each time.', 'x' ) ?>
+		<?php printf( __( 'These cached images can be purged on the <a href="%1s">Cache</a> tab to clear up disk space.', 'x' ), admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-cache' ) ) ?>
+		<?php _e( 'Future versions of this plugin will be able to clean up the cache automatically.', 'x' ) ?>
+	</p>
+
+
+
 	<h3 class="title"><?php _e( 'Filters', 'gga-dynamic-placeholder-images' ); ?></h3>
 		<ul>
 			<li>
