@@ -60,7 +60,7 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 		<?php _e( 'The plugin will also associate the requested image size to a randomly chosen image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'Future requests for the same image size will return the same image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'These associations can also be purged on the Cache tab.', 'gga-dynamic-placeholder-images' ) ?>
-		<br/>
+		<br/><br/>
 		<?php _e( 'Future versions of this plugin will be able to clean up the cache automatically.', 'gga-dynamic-placeholder-images' ) ?>
 	</p>
 

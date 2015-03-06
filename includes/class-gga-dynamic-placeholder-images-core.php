@@ -5,9 +5,11 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Core {
 
-		var $sizes;
-		var $meta_prefix = '_gga_image_';
-		var $plugin_name = 'gga-dynamic-images';
+		private $version = '2015-03-06-01';
+		private $sizes;
+		private $meta_prefix = '_gga_image_';
+		private $plugin_name = 'gga-dynamic-images';
+
 		var $plugin_base_url = '';
 
 
@@ -42,6 +44,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// allows cache interaction
 			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
 			add_filter( $this->plugin_name . '-get-cache-size', array( $this, 'get_cache_directory_size' ) );
+
+			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
+			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );
+
 
 		}
 
@@ -135,81 +141,22 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function admin_menu() {
-			add_options_page( __( 'GGA Dynamic Image Options', 'gga-dynamic-placeholder-images' ), __( 'GGA Dynamic Image', 'gga-dynamic-placeholder-images' ), 'manage_options', 'gga-dynamic-image-options', array( $this, 'admin_options_page' ) );
-		}
-
-
-		function admin_options_page() {
-
-			$status_message = '';
-
-			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die( __( 'You do not have sufficient permissions to manage options for this site.' ) );
-			}
-
-			$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
-			if ( isset( $nonce ) ) {
-				if ( !wp_verify_nonce( $nonce, 'gga-clear-dimension-associations' ) )
-					wp_die( 'Invalid nonce' ) ;
-
-
-				$clear_dimensions = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
-				if ( ! empty( $clear_dimensions ) ) {
-
-					$this->delete_all_dimension_associations();
-					$status_message = __( 'Dimensions cleared' , 'gga-dynamic-placeholder-images' );
-
-				}
-
-
-			}
-
-			$opt = $this->options;
-			?>
-
-			<div class="wrap">
-				<div id="icon-options-general" class="icon32"></div>
-				<h2><?php _e( 'GGA Dynamic Image Options' , 'gga-dynamic-placeholder-images' ) ?></h2>
-				<?php
-					if ( ! empty( $status_message ) ) {
-						?><div class="updated"><p><strong><?php echo $status_message ?></strong></p></div><?php
-					}
-				?>
-				<form method="post" action="options.php" id="gga-dynamic-image-settings">
-					<?php
-						settings_fields( $opt );
-						do_settings_sections( $opt );
-						submit_button();
-					?>
-				</form>
-
-				<form method="post" action="options-general.php?page=gga-dynamic-image-options" id="gga-dynamic-image-settings">
-					<?php wp_nonce_field( $action = 'gga-clear-dimension-associations', $name = '_wpnonce', $referer = true, $echo = true ) ?>
-
-					<?php _e( 'When an image is first generated, the requested dimensions are associated with the image. Subsequent requests for those dimensions will return the same image. Clearing the associations will allow the plugin to create new ones.', 'gga-dynamic-placeholder-images' ) ?>
-
-					<?php
-						submit_button( __( 'Clear Dimension Associations', 'gga-dynamic-placeholder-images' ), $type = 'secondary', $name = 'gga-clear-dimension-associations', $wrap = true, $other_attributes = null );
-					?>
-				</form>
-
-
-			</div>
-
-			<?php
-
-			flush_rewrite_rules( );
-		}
-
-
-		function delete_attachment( $postid ) {
+		public function delete_attachment( $postid ) {
 			$this->delete_options_from_query( " WHERE option_name like '_gga-placeholder-image-for%' and option_value = '" . intval( $postid ) . "'" );
 		}
 
 
-		function delete_all_dimension_associations() {
-			$this->delete_options_from_query( " WHERE option_name like '_gga-placeholder-image-for%'" ) ;
+		public function delete_all_dimension_associations() {
+			if ( current_user_can( 'manage_options' ) ) {
+				$this->delete_options_from_query( " WHERE option_name like '_gga-placeholder-image-for%'" );
+			}
+		}
+
+
+		public function get_dimension_associations_count( $count ) {
+			global $wpdb;
+			$count = $wpdb->get_var( "SELECT count(*) FROM $wpdb->options WHERE option_name like '_gga-placeholder-image-for%'" );
+			return $count;
 		}
 
 
@@ -217,8 +164,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			global $wpdb;
 			$results = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options " . $query );
 
-			foreach ( $results as $r )
+			foreach ( $results as $r ) {
 				delete_option( $r->option_name );
+			}
 
 		}
 
@@ -227,7 +175,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			status_header( 404 );
 			nocache_headers();
 			include get_404_template();
-			die();
+			//die();
 		}
 
 

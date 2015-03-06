@@ -104,6 +104,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 						do_action( $this->plugin_name . '-purge-cache' );
 						$gga_dynamic_images_admin_notice = __( 'Cache Purged', 'gga-dynamic-placeholder-images' );
 						break;
+					case 'delete-associations':
+						do_action( $this->plugin_name . '-delete-associations' );
+						$gga_dynamic_images_admin_notice = __( 'Image Associations Deleted', 'gga-dynamic-placeholder-images' );
+						break;
 				}
 
 				add_action( 'admin_notices', array( $this, 'handle_admin_action_notices' ) );

@@ -44,10 +44,13 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 				$cache_size = __( 'Empty', 'gga-dynamic-placeholder-images' );
 			}
 
+			$image_associations = number_format( intval( apply_filters( $this->plugin_name . '-get-associations-count', 0 ) ) );
+
 			?>
 
 				<ul>
 					<li><?php _e( 'Current Cache Size', 'gga-dynamic-placeholder-images' ) ?>: <?php echo $cache_size; ?> </li>
+					<li><?php _e( 'Image Association Count', 'gga-dynamic-placeholder-images' ) ?>: <?php echo $image_associations; ?> </li>
 				</ul>
 
 				<?php
@@ -59,6 +62,16 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 				?>
 
 				<a class="button" href="<?php echo $url ?>"><?php _e( 'Purge Cache', 'gga-dynamic-placeholder-images' ) ?></a>
+
+				<?php
+					$action = 'delete-associations';
+					$url = add_query_arg( array(
+						$this->plugin_name . '-action' => $action,
+						$this->plugin_name . '-nonce' => wp_create_nonce( $action ),
+					) );
+				?>
+
+				<a class="button" href="<?php echo $url ?>"><?php _e( 'Purge Image Associations', 'gga-dynamic-placeholder-images' ) ?></a>
 
 			<?php
 		}

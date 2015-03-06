@@ -17,11 +17,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 		function register_rewrites() {
 			$enabled = apply_filters( $this->plugin_name . '-setting-is-enabled', 'images-api', $this->plugin_name . '-settings-api', 'api-enabled' );
 			if ( $enabled ) {
-				add_rewrite_tag( '%gga-image-api-action%', '([A-Za-z0-9\-\_]+)' );
+
 				$endpoint = apply_filters( $this->plugin_name . '-setting-get', 'images-api', $this->plugin_name . '-settings-api', 'api-endpoint' );
-				if ( ! empty ( $endpoint ) )
+				if ( ! empty ( $endpoint ) ) {
 					$endpoint .= '/';
-				add_rewrite_rule( $endpoint . '([A-Za-z0-9\-\_]+)/?', 'index.php?gga-image-api-action=$matches[1]', 'top' );
+				}
+
+				add_rewrite_tag( '%gga-image-api-action%', '([A-Za-z0-9\-\_]+)' );
+				add_rewrite_tag( '%gga-image-api-request%', '1' );
+
+				add_rewrite_rule( $endpoint . '([A-Za-z0-9\-\_]+)/?', 'index.php?gga-image-api-request=1&gga-image-api-action=$matches[1]', 'top' );
+				add_rewrite_rule( $endpoint . '?', 'index.php?gga-image-api-request=1', 'top' );
 			}
 		}
 
@@ -32,31 +38,36 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 			if ( $enabled ) {
 				global $wp_query;
 
-				$action = $wp_query->get( 'gga-image-api-action' );
-				$data = null;
+				if ( $wp_query->get( 'gga-image-api-request' ) === '1' ) {
 
-				switch ( $action ) {
+					$action = $wp_query->get( 'gga-image-api-action' );
+					$data = null;
 
-					case 'image-tags':
-						$data = $this->image_tags_get();
-						break;
+					switch ( $action ) {
 
-					default;
-					case 'endpoints':
-						$data = $this->endpoint_list_get();
-						break;
+						case 'image-tags':
+							$data = $this->image_tags_get();
+							break;
+
+						default:
+							$data = $this->endpoint_list_get();
+							break;
+					}
+
+
+					if ( empty ( $data) ) {
+						wp_send_json_error();
+					} else {
+						wp_send_json_success( $data );
+					}
+
 				}
-
-
-				if ( empty ( $data) )
-					wp_send_json_error();
-				else
-					wp_send_json_success( $data );
 
 
 			}
 
 		}
+
 
 		private function endpoint_list_get() {
 
