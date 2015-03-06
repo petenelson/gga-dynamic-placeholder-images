@@ -1,6 +1,6 @@
 <?php
 
-if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
+if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
 if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
@@ -14,6 +14,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		var $plugin_name = 'gga-dynamic-images';
 		var $add_expires = true;
 		var $plugin_base_url = '';
+
+
+		static public function get_request( $key, $default = '', $filter = FILTER_SANITIZE_STRING ) {
+			foreach (array( INPUT_GET, INPUT_POST ) as $input) {
+				$value = filter_input( $input, $key, $filter );
+				if ( ! empty( $value ) ) {
+					return $value;
+				}
+			}
+			return $default;
+		}
 
 
 		public function plugins_loaded() {
@@ -75,7 +86,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 
 		function generate_image_url( $url, $width, $height, $tag = '' ) {
-			$url = site_url( $this->get_base_url() . intval( $width ) . '/' . intval( $height ) . '/' . sanitize_key( $tag ) );
+			$url = site_url( $this->get_base_url() . intval( $width ) . '/' . intval( $height ) . '/' . sanitize_key( $tag ) . '/' );
 			return $url;
 		}
 
@@ -142,12 +153,14 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				wp_die( __( 'You do not have sufficient permissions to manage options for this site.' ) );
 			}
 
-			if ( isset( $_POST['_wpnonce'] ) ) {
-				if ( !wp_verify_nonce( $_POST['_wpnonce'], 'gga-clear-dimension-associations' ) )
+			$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+			if ( isset( $nonce ) ) {
+				if ( !wp_verify_nonce( $nonce, 'gga-clear-dimension-associations' ) )
 					wp_die( 'Invalid nonce' ) ;
 
 
-				if ( isset( $_POST['gga-clear-dimension-associations'] ) ) {
+				$clear_dimensions = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+				if ( ! empty( $clear_dimensions ) ) {
 
 					$this->delete_all_dimension_associations();
 					$status_message = __( 'Dimensions cleared' , 'gga-dynamic-placeholder-images' );
@@ -164,7 +177,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				<div id="icon-options-general" class="icon32"></div>
 				<h2><?php _e( 'GGA Dynamic Image Options' , 'gga-dynamic-placeholder-images' ) ?></h2>
 				<?php
-					if ( !empty( $status_message ) ) {
+					if ( ! empty( $status_message ) ) {
 						?><div class="updated"><p><strong><?php echo $status_message ?></strong></p></div><?php
 					}
 				?>

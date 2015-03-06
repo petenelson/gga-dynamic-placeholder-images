@@ -1,8 +1,8 @@
 <?php
 
-if (!defined( 'ABSPATH' )) exit('restricted access');
+if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
-if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
+if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Settings {
 
@@ -37,14 +37,8 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		}
 
 
-		function get_option_filter( $value, $key ) {
-			$options = get_option( $this->options );
-			if ( ! empty( $options ) && isset( $options[ $key ] ) ) {
-				return $options[ $key ];
-			}
-			else {
-				return $value;
-			}
+		private function get_request( $key, $default = '', $filter = FILTER_SANITIZE_STRING ) {
+			return GGA_Dynamic_Placeholder_Images_Core::get_request( $key, $default, $filter );
 		}
 
 
@@ -100,11 +94,13 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 
 		function handle_admin_actions() {
 
-			if ( ! empty( $_REQUEST[$this->plugin_name . '-action'] ) && current_user_can( 'manage_options' ) && wp_verify_nonce( $_REQUEST[$this->plugin_name . '-nonce'], $_REQUEST[$this->plugin_name . '-action'] ) ) {
+			$action = $this->get_request( $this->plugin_name . '-action' );
+			$nonce = $this->get_request( $this->plugin_name . '-nonce' );
+			if ( ! empty( $action ) && current_user_can( 'manage_options' ) && wp_verify_nonce( $nonce, $action ) ) {
 
 				global $gga_dynamic_images_admin_notice;
 
-				switch ( $_REQUEST[$this->plugin_name . '-action'] ) {
+				switch ( $action ) {
 					case 'purge-cache':
 						do_action( $this->plugin_name . '-purge-cache' );
 						$gga_dynamic_images_admin_notice = __( 'Cache Purged', 'gga-dynamic-placeholder-images' );
@@ -328,7 +324,11 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 
 		function options_page() {
 
-			$tab = !empty( $_GET['tab'] ) ? $_GET['tab'] : $this->settings_key_general;
+			$tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
+			if ( empty ( $tab ) ) {
+				 $tab = $this->settings_key_general;
+			}
+
 			?>
 			<div class="wrap">
 				<?php $this->plugin_options_tabs(); ?>
@@ -344,7 +344,8 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 			</div>
 			<?php
 
-			if ( ! empty( $_GET[ 'settings-updated'] ) ) {
+			$settings_updated = $this->get_request( 'settings-updated' );
+			if ( ! empty( $settings_updated ) ) {
 				flush_rewrite_rules( );
 			}
 
@@ -352,7 +353,10 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 
 
 		function plugin_options_tabs() {
-			$current_tab = !empty( $_GET['tab'] ) ? $_GET['tab'] : $this->settings_key_general;
+			$current_tab = $this->get_request( 'tab' );
+			if ( empty( $current_tab ) ) {
+				$current_tab = $this->settings_key_general;
+			}
 			echo '<h2>' . __('Dynamic Placeholder Images Settings', 'gga-dynamic-placeholder-images') . '</h2><h2 class="nav-tab-wrapper">';
 			foreach ( $this->plugin_settings_tabs as $tab_key => $tab_caption ) {
 				$active = $current_tab == $tab_key ? 'nav-tab-active' : '';
@@ -362,9 +366,9 @@ if (!class_exists('GGA_Dynamic_Placeholder_Images_Settings')) {
 		}
 
 
-		function section_header($args) {
+		function section_header( $args ) {
 
-			switch ($args['id']) {
+			switch ( $args['id'] ) {
 				case 'general';
 					include_once $this->plugin_base_dir . 'admin/partials/admin-general-header.php';
 					break;

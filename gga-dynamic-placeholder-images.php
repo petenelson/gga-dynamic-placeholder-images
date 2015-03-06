@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: GGA Dynamic Placeholder Images
+ * Plugin Name: Dynamic Placeholder Images
  * Plugin URI: https://github.com/petenelson/gga-dynamic-placeholder-images
  * Description: Plugin for managing and serving up placeholder images (such as <a href="http://baconmockup.com/200/200" target="_blank">http://baconmockup.com/200/200</a>)
  * Version: 2.0
@@ -16,7 +16,7 @@
  *
  */
 
-if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
+if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
 $includes = array( 'core', 'api', 'attachment-meta', 'settings', 'dashboard-widgets', 'stats' );
 foreach ($includes as $include) {

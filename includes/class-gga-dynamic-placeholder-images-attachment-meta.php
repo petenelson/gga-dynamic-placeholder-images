@@ -1,8 +1,8 @@
 <?php
 
-if ( !defined( 'ABSPATH' ) ) exit( 'restricted access' );
+if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
-if ( !class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
+if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Attachment_Meta {
 
