@@ -45,14 +45,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 			<?php
 
-			$core = new GGA_Dynamic_Placeholder_Images_Core();
-
-			$query_args = $core->image_query_args();
-			$query_args['posts_per_page'] = -1;
-			$query_args['orderby'] = 'name';
-			$query_args['order'] = 'asc';
-
-			$posts = $core->query_images( $query_args );
+			$posts = $this->query_posts( );
 
 			foreach( $posts as $post ) {
 
@@ -149,6 +142,18 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 			return $html;
 
+		}
+
+
+		private function query_posts( ) {
+			$core = new GGA_Dynamic_Placeholder_Images_Core();
+
+			$query_args = $core->image_query_args();
+			$query_args['posts_per_page'] = -1;
+			$query_args['orderby'] = 'name';
+			$query_args['order'] = 'asc';
+
+			return $core->query_images( $query_args );
 		}
 
 
