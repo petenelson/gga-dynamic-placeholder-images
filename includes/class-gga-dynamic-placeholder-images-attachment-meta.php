@@ -1,5 +1,4 @@
 <?php
-
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
 if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
@@ -9,11 +8,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 		var $plugin_base_url = '';
 
 		public function plugins_loaded() {
-
 			add_filter( 'attachment_fields_to_edit', array( $this, 'attachment_fields_to_edit' ), 10, 2 );
 			add_filter( "attachment_fields_to_save", array( $this, 'attachment_fields_to_save' ), 10 , 2 );
-			//add_action( 'add_meta_boxes_attachment', array( $this, 'add_meta_box_attachment' ) );
-
 		}
 
 
@@ -85,18 +81,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 		}
 
 
-		function checkbox( $post, $id, $args = null ) {
+		private function checkbox( $post, $id, $args = null ) {
 			$meta_on = get_post_meta( $post->ID, '_' . $id, true ) === 'on';
 			$checked = $meta_on ? 'checked="checked"' : '';
-
 			$args = wp_parse_args( $args, array( 'append_html' => '' ) );
-
 			return "<input type='checkbox' name='attachments[{$post->ID}][$id]' id='attachments[{$post->ID}][$id]' value='on' {$checked} />" . $args['append_html'];
 		}
-
-
-
-
 
 
 	}

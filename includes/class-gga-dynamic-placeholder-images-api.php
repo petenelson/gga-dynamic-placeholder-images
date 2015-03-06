@@ -1,5 +1,4 @@
 <?php
-
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
 if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
@@ -34,23 +33,57 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
 				global $wp_query;
 
 				$action = $wp_query->get( 'gga-image-api-action' );
+				$data = null;
 
 				switch ( $action ) {
 
 					case 'image-tags':
-						$tags = $this->image_tags_get();
-						if ( empty ( $tags ) )
-							wp_send_json_error();
-						else
-							wp_send_json_success( $tags );
+						$data = $this->image_tags_get();
+						break;
 
+					default;
+					case 'endpoints':
+						$data = $this->endpoint_list_get();
+						break;
 				}
+
+
+				if ( empty ( $data) )
+					wp_send_json_error();
+				else
+					wp_send_json_success( $data );
+
+
 			}
 
 		}
 
+		private function endpoint_list_get() {
 
-		function image_tags_get() {
+			$results = array();
+			$base_endpoint = apply_filters( $this->plugin_name . '-setting-get', 'images-api', $this->plugin_name . '-settings-api', 'api-endpoint' );
+
+			$endpoints = array(
+				'image-tags' => array(
+					'description' => __( 'Returns an array of available image tags', 'gga-dynamic-placeholder-images' ),
+				),
+			);
+
+
+			foreach ( $endpoints as $endpoint => $details ) {
+				$o = new stdClass();
+				$o->endpoint = $endpoint;
+				$o->url = trim( site_url( trailingslashit( path_join( $base_endpoint, $endpoint ) ) ) );
+				$o->details = $details;
+				$results[] = $o;
+			}
+
+			return $results;
+
+		}
+
+
+		private function image_tags_get() {
 
 			$tags = array();
 

@@ -1,10 +1,17 @@
 <?php
 
-					$output = __('Allows for a JSON API to your image generator.', 'gga-dynamic-placeholder-images');
-					$endpoint = $this->setting_get( '', $this->settings_key_api, 'api-endpoint' );
-					$enabled = $this->setting_is_enabled( '', $this->settings_key_api, 'api-enabled' );
-					if ( ! empty( $enabled ) ) {
-						$output .= '<br/>' . __('Example', 'gga-dynamic-placeholder-images') . ': ';
-						$url = home_url( $endpoint ) . '/image-tags/';
-						$output .= '<a target="_blank" href="' . $url . '">' . $url . '</a>';
-					}
+	$enabled = apply_filters( $this->plugin_name . '-setting-is-enabled', 'images-api', $this->plugin_name . '-settings-api', 'api-enabled' );
+	$base_endpoint = apply_filters( $this->plugin_name . '-setting-get', 'images-api', $this->plugin_name . '-settings-api', 'api-endpoint' );
+
+	if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
+		$url = site_url( trailingslashit( $base_endpoint ) );
+	}
+
+?>
+
+<p>
+	<?php _e( 'Allows for a JSON API to your image generator.', 'gga-dynamic-placeholder-images' ); ?>
+	<?php if ( ! empty( $url ) ) { ?>
+		<br/><?php _e( 'View API Details', 'gga-dynamic-placeholder-images') ?>: <a href="<?php echo $url ?>" target="_blank"><?php echo $url ?></a>
+	<?php } ?>
+</p>

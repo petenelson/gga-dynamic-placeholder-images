@@ -1,18 +1,13 @@
 <?php
-
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
 if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Core {
 
-		var $version = '2015-02-26-01';
 		var $sizes;
 		var $meta_prefix = '_gga_image_';
-		var $meta_sizes = '_gga_dpi_sizes';
-		var $options = '_gga_placeholder_image_options';
 		var $plugin_name = 'gga-dynamic-images';
-		var $add_expires = true;
 		var $plugin_base_url = '';
 
 
@@ -51,7 +46,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function register_rewrites() {
+		public function register_rewrites() {
 			add_rewrite_tag( '%gga-dynamic-image%', '1' );
 			add_rewrite_tag( '%gga-dynamic-image-width%', '([0-9]+)' );
 			add_rewrite_tag( '%gga-dynamic-image-height%', '([0-9]+)' );
@@ -62,7 +57,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function template_redirect() {
+		public function template_redirect() {
 
 			global $wp_query;
 
@@ -85,19 +80,19 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function generate_image_url( $url, $width, $height, $tag = '' ) {
+		public function generate_image_url( $url, $width, $height, $tag = '' ) {
 			$url = site_url( $this->get_base_url() . intval( $width ) . '/' . intval( $height ) . '/' . sanitize_key( $tag ) . '/' );
 			return $url;
 		}
 
 
-		function get_base_url( $base_url = '' ) {
+		private function get_base_url( $base_url = '' ) {
 			$base_url = apply_filters( $this->plugin_name . '-setting-get', 'dynamic-image', 'gga-dynamic-images-settings-general', 'base-url' );
 			return ! empty( $base_url ) ? $base_url . '/' : '';
 		}
 
 
-		function handle_dynamic_image( $width, $height, $slug ) {
+		private function handle_dynamic_image( $width, $height, $slug ) {
 
 			global $wp_query;
 
