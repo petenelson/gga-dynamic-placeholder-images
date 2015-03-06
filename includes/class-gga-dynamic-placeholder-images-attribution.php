@@ -49,63 +49,22 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 			foreach( $posts as $post ) {
 
-				$id = $post->ID;
-
-				$tag = $post->post_name;
-				$image_url = apply_filters( $this->plugin_name . '-image-url', '', $args['width'], $args['height'], $tag );
-
 				$cc_url = '';
-				$attrib_to = get_post_meta( $id, $this->meta_prefix . 'attribute_to', true );
-				$attrib_url = get_post_meta( $id, $this->meta_prefix . 'attribute_url', true );
 
-				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) );
+				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_by', true ) );
 					$cc_url = 'http://creativecommons.org/licenses/by/2.0/';
 
-				if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) );
+				if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_sa', true ) );
 					$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
 
-				?>
-				<div class="attribImage">
-					<div class="attribImage-inner">
-
-					<a class="image-link" href="<?php echo $image_url; ?>"><img class="image-thumbnail" src="<?php echo $image_url; ?>" alt="<?php echo esc_attr( $post->post_name ); ?>" width="<?php echo $args['width']; ?>" height="<?php echo $args['height']; ?>" /></a>
-					<div class="image-meta">
-						<div class="image-tag">tag: <?php echo esc_html( $tag ); ?></div>
-
-					<?php if ( $attrib_to !== false && !empty( $attrib_to ) ) { ?>
-						<div class="attribute-to">by <a href="<?php echo $attrib_url ?>" target="_blank"><?php echo esc_html( $attrib_to ); ?></a></div>
-					<?php } ?>
-
-					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_by', true ) ) { ?>
-						<span class="cc cc-by" title="<?php _e( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_by' ); ?></span>
-					<?php } ?>
-
-					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_sa', true ) ) { ?>
-						<span class="cc cc-sa" title="<?php _e( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_sa' ); ?></span>
-					<?php } ?>
-
-					<?php if ( 'on' === get_post_meta( $id, $this->meta_prefix . 'cc_nc', true ) ) { ?>
-						<span class="cc cc-nc" title="<?php _e( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_nc' ); ?></span>
-					<?php } ?>
-
-					<?php if ( $cc_url != '' ) { ?>
-						<a class="some-rights-reserved" href="<?php echo $cc_url ?>" target="_blank"><?php _e( 'Some rights reserved', 'gga-dynamic-placeholder-images' ); ?></a>
-					<?php } ?>
-					</div>
-
-					</div>
-				</div><!-- .attribImage -->
-
-				<?php
+				$this->echo_attribution_item_html( $post, $args, $cc_url );
 
 			} // end foreach $posts
 
 			?>
 			</div><!-- end of attribution images -->
 
-			<style>
-				.gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $args['columns'] > 0 ? floor( 100 / $args['columns'] ) : 100 ) - 1; ?>% }
-			</style>
+			<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $args['columns'] > 0 ? floor( 100 / $args['columns'] ) : 100 ) - 1; ?>% } </style>
 			<?php
 
 			$html = ob_get_contents();
@@ -116,6 +75,29 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 			return $html;
 
+		}
+
+
+		private function echo_attribution_item_html( $post, $args, $cc_url ) {
+			$attrib_to = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_to', true );
+			$attrib_url = get_post_meta( $post->ID, $this->meta_prefix . 'attribute_url', true );
+			$image_url = apply_filters( $this->plugin_name . '-image-url', '', $args['width'], $args['height'], $post->post_name );
+
+			?>
+			<div class="attribImage">
+				<div class="attribImage-inner">
+					<a class="image-link" href="<?php echo $image_url; ?>"><img class="image-thumbnail" src="<?php echo $image_url; ?>" alt="<?php echo esc_attr( $post->post_name ); ?>" width="<?php echo $args['width']; ?>" height="<?php echo $args['height']; ?>" /></a>
+					<div class="image-meta">
+						<div class="image-tag">tag: <?php echo esc_html( $post->post_name ); ?></div>
+						<?php if ( $attrib_to !== false && !empty( $attrib_to ) ) { ?><div class="attribute-to">by <a href="<?php echo $attrib_url ?>" target="_blank"><?php echo esc_html( $attrib_to ); ?></a></div><?php } ?>
+						<?php if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_by', true ) ) { ?><span class="cc cc-by" title="<?php _e( 'Creative Commons Attribution', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_by' ); ?></span><?php } ?>
+						<?php if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_sa', true ) ) { ?><span class="cc cc-sa" title="<?php _e( 'Creative Commons Share Alike', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_sa' ); ?></span><?php } ?>
+						<?php if ( 'on' === get_post_meta( $post->ID, $this->meta_prefix . 'cc_nc', true ) ) { ?><span class="cc cc-nc" title="<?php _e( 'Creative Commons Non-Commercial', 'gga-dynamic-placeholder-images' ); ?>"><?php echo $this->cc_img_html( '', 'cc_nc' ); ?></span><?php } ?>
+						<?php if ( $cc_url != '' ) { ?><a class="some-rights-reserved" href="<?php echo $cc_url ?>" target="_blank"><?php _e( 'Some rights reserved', 'gga-dynamic-placeholder-images' ); ?></a><?php } ?>
+					</div>
+				</div>
+			</div><!-- .attribImage -->
+			<?php
 		}
 
 
