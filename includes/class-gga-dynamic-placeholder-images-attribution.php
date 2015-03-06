@@ -34,23 +34,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 				)
 			);
 
-			$int_args = array( 'width', 'height', 'columns' );
-			foreach ( $int_args as $key ) {
-				$args[ $key ] = intval( $args[ $key ] );
-			}
 
-			if ( $args['columns'] < 1 )
-				$args['columns'] = 1;
+			$args = $this->sanitize_args( $args );
 
-			if ( $args['width'] < 1 )
-				$args['width'] = 1;
-
-			if ( $args['height'] < 1 )
-				$args['height'] = 1;
-
-			$args['class'] = esc_attr( $args['class'] );
-
-			$itemwidth = $args['columns'] > 0 ? floor(100/$args['columns']) : 100;
 
 			ob_start();
 			?>
@@ -125,7 +111,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 			</div><!-- end of attribution images -->
 
 			<style>
-				.gga-dynamic-images-attribution .attribImage { max-width: <?php echo $itemwidth - 1; ?>% }
+				.gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $args['columns'] > 0 ? floor( 100 / $args['columns'] ) : 100 ) - 1; ?>% }
 			</style>
 			<?php
 
@@ -162,6 +148,29 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 			}
 
 			return $html;
+
+		}
+
+
+		private function sanitize_args( $args ) {
+
+			$int_args = array( 'width', 'height', 'columns' );
+			foreach ( $int_args as $key ) {
+				$args[ $key ] = intval( $args[ $key ] );
+			}
+
+			if ( $args['columns'] < 1 )
+				$args['columns'] = 1;
+
+			if ( $args['width'] < 1 )
+				$args['width'] = 1;
+
+			if ( $args['height'] < 1 )
+				$args['height'] = 1;
+
+			$args['class'] = esc_attr( $args['class'] );
+
+			return $args;
 
 		}
 
