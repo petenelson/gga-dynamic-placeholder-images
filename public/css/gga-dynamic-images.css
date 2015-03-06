@@ -1,0 +1,40 @@
+.gga-dynamic-images-attribution {
+	margin: auto;
+}
+
+.gga-dynamic-images-attribution .attribImage {
+	margin-top: 10px;
+	display: inline-block;
+	vertical-align: top;
+	padding: 1%;
+	width: 100%;
+	text-align: center;
+}
+
+.gga-dynamic-images-attribution .attribImage-inner {
+	display: inline-block;
+}
+
+
+.gga-dynamic-images-attribution .attribImage .image-meta {
+	text-align: left;
+}
+
+
+.gga-dynamic-images-attribution .cc {
+	display: inline-block;
+	margin: 0.15em
+}
+
+.gga-dynamic-images-attribution .cc:first-of-type {
+	margin-left: 0;
+}
+
+.gga-dynamic-images-attribution .cc:last-of-type {
+	margin-right: 0.5em
+}
+
+.gga-dynamic-images-attribution .some-rights-reserved {
+	font-size: 0.6em;
+}
+
