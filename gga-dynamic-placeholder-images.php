@@ -34,8 +34,8 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 // Cache management
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
-	$gga_dynamic_placeholder_images_cache = new GGA_Dynamic_Placeholder_Images_Cache();
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_cache, 'plugins_loaded' ) );
+	$gga_placeholder_images_cache = new GGA_Dynamic_Placeholder_Images_Cache();
+	add_action( 'plugins_loaded', array( $gga_placeholder_images_cache, 'plugins_loaded' ) );
 }
 
 
