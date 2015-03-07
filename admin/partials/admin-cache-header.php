@@ -1,7 +1,7 @@
 <?php
-if (!defined( 'ABSPATH' )) wp_die('restricted access');
-
-if ( ! current_user_can( 'manage_options' ) ) exit('restricted access');
+if ( ! defined( 'ABSPATH' ) || ! current_user_can( 'manage_options' ) ) {
+	wp_die('restricted access');
+}
 
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 	$widget = new GGA_Dynamic_Placeholder_Images_Dashboard_Widgets();
