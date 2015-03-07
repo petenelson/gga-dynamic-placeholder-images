@@ -74,6 +74,7 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Stats' ) ) {
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 	$gga_dynamic_placeholder_images_attribution = new GGA_Dynamic_Placeholder_Images_Attribution();
 	$gga_dynamic_placeholder_images_attribution->plugin_base_url = plugin_dir_url( __FILE__ );
+	$gga_dynamic_placeholder_images_attribution->plugin_base_dir = plugin_dir_path( __FILE__ );
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_attribution, 'plugins_loaded' ) );
 }
 
