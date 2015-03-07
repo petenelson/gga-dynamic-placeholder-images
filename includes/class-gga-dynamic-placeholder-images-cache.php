@@ -9,9 +9,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 
 		public function plugins_loaded() {
 
+			// allows cache interaction
 			add_filter( $this->plugin_name . '-get-cache-directory', array( $this, 'get_cache_directory' ) );
 			add_filter( $this->plugin_name . '-get-cache-directory-contents', array( $this, 'get_cache_directory_contents' ) );
 			add_filter( $this->plugin_name . '-get-cache-size', array( $this, 'get_cache_directory_size' ) );
+
+			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
 
 		}
 
@@ -65,6 +68,45 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 		}
 
 
+		private function create_cache_directory() {
+			$cache_directory = $this->get_cache_directory();
+			if ( wp_mkdir_p( $cache_directory ) ) {
+				foreach( $this->cache_width_directories() as $width ) {
+					$this->create_cache_width_directory( $cache_directory, $width );
+				}
+			}
+
+		}
+
+
+		private function create_cache_width_directory( $base_cache_directory, $width ) {
+			wp_mkdir_p( path_join( $base_cache_directory, $width ) );
+		}
+
+
+		private function delete_cache_directory() {
+
+			if ( $this->init_filesystem() ) {
+				global $wp_filesystem;
+				$cache_directory = $this->get_cache_directory();
+				delete_site_transient( $this->plugin_name . '-cache-size' );
+				return $wp_filesystem->rmdir( $cache_directory, true );
+			} else {
+				return false;
+			}
+
+		}
+
+
+		public function purge_cache_directory() {
+			if ( $this->delete_cache_directory() ) {
+				return $this->create_cache_directory();
+			}
+			else {
+				return false;
+			}
+		}
+
 		private function get_directory_size( $list ) {
 			$size = 0;
 
@@ -81,6 +123,15 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 			}
 
 			return $size;
+		}
+
+
+		private function cache_width_directories() {
+			$widths = array();
+			for ( $width = 0; $width <= 2000; $width += 100 ) {
+				$widths[] = $width;
+			}
+			return $widths;
 		}
 
 

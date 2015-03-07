@@ -34,8 +34,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// generate a URL to an image
 			add_filter( $this->plugin_name . '-image-url', array( $this, 'generate_image_url' ), 10, 4 );
 
-			// allows cache interaction
-			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
 
 			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
 			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );
@@ -430,52 +428,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function create_cache_directory() {
-			$cache_directory = $this->get_cache_directory();
-			if ( wp_mkdir_p( $cache_directory ) ) {
-				foreach( $this->cache_width_directories() as $width ) {
-					$this->create_cache_width_directory( $cache_directory, $width );
-				}
-			}
 
-		}
-
-		function cache_width_directories() {
-			$widths = array();
-			for ( $width = 0; $width <= 2000; $width += 100 ) {
-				$widths[] = $width;
-			}
-			return $widths;
-		}
-
-
-		function create_cache_width_directory( $base_cache_directory, $width ) {
-			wp_mkdir_p( path_join( $base_cache_directory, $width ) );
-		}
-
-
-		function delete_cache_directory() {
-
-			if ( $this->init_filesystem() ) {
-				global $wp_filesystem;
-				$cache_directory = $this->get_cache_directory();
-				delete_site_transient( $this->plugin_name . '-cache-size' );
-				return $wp_filesystem->rmdir( $cache_directory, true );
-			} else {
-				return false;
-			}
-
-		}
-
-
-		function purge_cache_directory() {
-			if ( $this->delete_cache_directory() ) {
-				return $this->create_cache_directory();
-			}
-			else {
-				return false;
-			}
-		}
 
 		function get_cache_directory_contents() {
 			return apply_filters( $this->plugin_name . '-get-cache-directory-contents', false );
