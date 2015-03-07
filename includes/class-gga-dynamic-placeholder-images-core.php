@@ -93,7 +93,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			if ( $width !== 0 && $height !== 0 ) {
 
-				//$this->load_image_sizes();
 				$id = $this->get_image_id_for_slug( $slug, $width, $height );
 
 				if ( empty( $id ) ) {
@@ -172,7 +171,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		public function query_images( $args ) {
+		private function query_images( $args ) {
 			global $post;
 			$posts = array();
 			$query = new WP_Query( $args );
@@ -342,28 +341,29 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			$metadata = wp_get_attachment_metadata( $id );
 			$cached_file_exists = $this->cached_file_exists( $metadata, $image_size_name, $width );
 
-			if ( ! $image_size_exists || ! $cached_file_exists ) {
-				if ( $image ) {
-					$fullsizepath = get_attached_file( $image->ID );
-					include_once ABSPATH . 'wp-admin/includes/image.php';
+			if ( ! empty( $image) && ( ! $image_size_exists || ! $cached_file_exists ) ) {
+				$fullsizepath = get_attached_file( $image->ID );
+				include_once ABSPATH . 'wp-admin/includes/image.php';
 
-					if ( ! $cached_file_exists ) {
-						$resized = $this->generate_resized_image( $fullsizepath, $width, $height );
-					}
-
-					if ( ! empty( $resized ) && ! empty( $resized['file'] ) ) {
-						$metadata[ $this->meta_sizes ][ $image_size_name ] = $resized;
-						wp_update_attachment_metadata( $id, $metadata );
-					}
-
+				if ( ! $cached_file_exists ) {
+					$resized = $this->generate_resized_image( $fullsizepath, $width, $height );
 				}
 
+				$this->update_image_metadata( $id, $resized, $metadata, $image_size_name );
 			}
 
 			$this->add_image_size_association( $id, $width, $height );
 
 			return true;
 
+		}
+
+
+		private function update_image_metadata( $id, $resized, $metadata, $image_size_name ) {
+			if ( ! empty( $resized ) && ! empty( $resized['file'] ) ) {
+				$metadata[ $this->meta_sizes ][ $image_size_name ] = $resized;
+				wp_update_attachment_metadata( $id, $metadata );
+			}
 		}
 
 
@@ -397,7 +397,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		private function get_existing_image_id_by_dimensions( $width, $height ) {
 			$id = get_option( "_gga-placeholder-image-for-{$width}-{$height}", false );
-			var_dump($id);
 			return $id;
 		}
 
