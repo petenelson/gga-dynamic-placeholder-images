@@ -390,35 +390,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function init_filesystem() {
-			// TODO remove
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-			$access_type = get_filesystem_method();
-			if( $access_type === 'direct' ) {
-				$upload_dir = wp_upload_dir();
-				$creds = request_filesystem_credentials( $upload_dir['url'] );
-				/* initialize the API */
-				return WP_Filesystem( $creds );
-			} else {
-				return false;
-			}
-		}
-
-
 		private function get_cache_directory() {
 			return apply_filters( $this->plugin_name . '-get-cache-directory', 'gga-dynamic-placeholder-images' );
-		}
-
-
-
-
-		function get_cache_directory_contents() {
-			return apply_filters( $this->plugin_name . '-get-cache-directory-contents', false );
-		}
-
-
-		function get_cache_directory_size( $size ) {
-			return apply_filters( $this->plugin_name . '-get-cache-size', 0 );
 		}
 
 

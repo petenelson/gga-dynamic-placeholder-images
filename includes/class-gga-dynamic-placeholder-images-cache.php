@@ -18,6 +18,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 
 		}
 
+
 		private function init_filesystem() {
 			require_once( ABSPATH . 'wp-admin/includes/file.php' );
 			$access_type = get_filesystem_method();
@@ -38,6 +39,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 			$cache_directory = path_join( $upload_dir['basedir'], $cache_directory );
 			return $cache_directory;
 		}
+
 
 		public function get_cache_directory_contents( $contents = false ) {
 			if ( $this->init_filesystem() ) {
@@ -65,6 +67,16 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 				return $size;
 			}
 
+		}
+
+
+		public function purge_cache_directory() {
+			if ( $this->delete_cache_directory() ) {
+				return $this->create_cache_directory();
+			}
+			else {
+				return false;
+			}
 		}
 
 
@@ -97,15 +109,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 
 		}
 
-
-		public function purge_cache_directory() {
-			if ( $this->delete_cache_directory() ) {
-				return $this->create_cache_directory();
-			}
-			else {
-				return false;
-			}
-		}
 
 		private function get_directory_size( $list ) {
 			$size = 0;
