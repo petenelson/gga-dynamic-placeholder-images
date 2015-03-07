@@ -34,54 +34,54 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 // Cache management
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
-	$gga_placeholder_images_cache = new GGA_Dynamic_Placeholder_Images_Cache();
-	add_action( 'plugins_loaded', array( $gga_placeholder_images_cache, 'plugins_loaded' ) );
+	$gga_images_cache = new GGA_Dynamic_Placeholder_Images_Cache();
+	add_action( 'plugins_loaded', array( $gga_images_cache, 'plugins_loaded' ) );
 }
 
 
 // exposes an API endpoint and handles API actions
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_API' ) ) {
-	$gga_dynamic_placeholder_images_api = new GGA_Dynamic_Placeholder_Images_API();
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_api, 'plugins_loaded' ) );
+	$gga_images_api = new GGA_Dynamic_Placeholder_Images_API();
+	add_action( 'plugins_loaded', array( $gga_images_api, 'plugins_loaded' ) );
 }
 
 
 // adds meta fields to attachments
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
-	$gga_dynamic_placeholder_images_attachment_meta = new GGA_Dynamic_Placeholder_Images_Attachment_Meta();
-	$gga_dynamic_placeholder_images_attachment_meta->plugin_base_url = plugin_dir_url( __FILE__ );
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_attachment_meta, 'plugins_loaded' ) );
+	$gga_images_meta = new GGA_Dynamic_Placeholder_Images_Attachment_Meta();
+	$gga_images_meta->plugin_base_url = plugin_dir_url( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_images_meta, 'plugins_loaded' ) );
 }
 
 
 // handles Admin Settings pages and filters to get plugin settings
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
-	$gga_dynamic_placeholder_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
-	$gga_dynamic_placeholder_images_settings->plugin_base_dir = plugin_dir_path( __FILE__ );
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_settings, 'plugins_loaded' ) );
+	$gga_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
+	$gga_images_settings->plugin_base_dir = plugin_dir_path( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_images_settings, 'plugins_loaded' ) );
 }
 
 
 // Dashboard widgets
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
-	$gga_dynamic_placeholder_images_dashboard_widgets = new GGA_Dynamic_Placeholder_Images_Dashboard_Widgets();
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_dashboard_widgets, 'plugins_loaded' ) );
+	$gga_images_widgets = new GGA_Dynamic_Placeholder_Images_Dashboard_Widgets();
+	add_action( 'plugins_loaded', array( $gga_images_widgets, 'plugins_loaded' ) );
 }
 
 
 // Stats logging
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Stats' ) ) {
-	$gga_dynamic_placeholder_images_stats = new GGA_Dynamic_Placeholder_Images_Stats();
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_stats, 'plugins_loaded' ) );
-	register_activation_hook( __FILE__, array( $gga_dynamic_placeholder_images_stats, 'activation_hook' ) );
+	$gga_images_stats = new GGA_Dynamic_Placeholder_Images_Stats();
+	add_action( 'plugins_loaded', array( $gga_images_stats, 'plugins_loaded' ) );
+	register_activation_hook( __FILE__, array( $gga_images_stats, 'activation_hook' ) );
 }
 
 
 // Attribution shortcode
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
-	$gga_dynamic_placeholder_images_attribution = new GGA_Dynamic_Placeholder_Images_Attribution();
-	$gga_dynamic_placeholder_images_attribution->plugin_base_url = plugin_dir_url( __FILE__ );
-	$gga_dynamic_placeholder_images_attribution->plugin_base_dir = plugin_dir_path( __FILE__ );
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_attribution, 'plugins_loaded' ) );
+	$gga_images_attrib = new GGA_Dynamic_Placeholder_Images_Attribution();
+	$gga_images_attrib->plugin_base_url = plugin_dir_url( __FILE__ );
+	$gga_images_attrib->plugin_base_dir = plugin_dir_path( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_images_attrib, 'plugins_loaded' ) );
 }
 
