@@ -1,5 +1,5 @@
 <?php
-if (!defined( 'ABSPATH' )) exit('restricted access');
+if (!defined( 'ABSPATH' )) wp_die('restricted access');
 
 if ( ! current_user_can( 'manage_options' ) ) exit('restricted access');
 
