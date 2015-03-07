@@ -34,13 +34,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// generate a URL to an image
 			add_filter( $this->plugin_name . '-image-url', array( $this, 'generate_image_url' ), 10, 4 );
 
-			// allows cache interaction
-			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
-			add_filter( $this->plugin_name . '-get-cache-size', array( $this, 'get_cache_directory_size' ) );
 
 			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
 			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );
-
 
 		}
 
@@ -226,9 +222,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function stream_image( $id, $w, $h ) {
+		function stream_image( $id, $width, $height ) {
 
-			$image_size_name = $this->image_size_name( $w, $h );
+			$image_size_name = $this->image_size_name( $width, $height );
 			$image = get_post( $id );
 
 			$meta = wp_get_attachment_metadata( $id );
@@ -238,34 +234,22 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			if ( !empty( $sizes ) && ! empty( $sizes[ $image_size_name ] ) ) {
 
-				$filename = $this->get_cached_file_path( $sizes[ $image_size_name ]['file'], $w );
+				$filename = $this->get_cached_file_path( $sizes[ $image_size_name ]['file'], $width );
 				if ( ! file_exists( $filename ) ) {
 					// regenrate a missing image
-					$this->generate_image( $id, $w, $h );
+					$this->generate_image( $id, $width, $height );
 				}
 
 				$filesize = filesize( $filename );
-
-				header( 'Content-Type: ' . $sizes[$image_size_name]['mime-type'] );
-				header( 'Content-Length: ' . $filesize );
-				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $w . '-' . $h . '.jpg' );
-
-				if ( $this->add_expires ) {
-					$expires = DAY_IN_SECONDS * 15;
-					header( 'Pragma: public' );
-					header( 'Cache-Control: public' );
-					header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time()+$expires ) . ' GMT' );
-					header( 'Last-Modified:Mon, 20 Aug 2012 19:20:21 GMT' );
-				}
-
+				$this->send_image_stream_headers( $sizes[$image_size_name]['mime-type'], $filesize, $image->post_name . '-' . $width . '-' . $height . '.jpg' );
+				$this->send_common_stream_headers();
 
 				ob_clean();
 				flush();
 				readfile( $filename );
 
 				// fire action to allow stats logging
-				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $w, 'height' => $h, 'bytes' => $filesize ) );
-
+				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $width, 'height' => $height, 'bytes' => $filesize ) );
 				die();
 
 			}
@@ -276,30 +260,30 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function save_images_sizes() {
-			$key = 'gga-dynamic-image-sizes';
-			if ( false === get_option( $key ) )
-				add_option( $key, $this->sizes, $deprecated = '', $autoload = 'no' );
-			else
-				update_option( $key, $this->sizes );
+		private function send_image_stream_headers( $mime_type, $filesize, $filename ) {
+			header( 'Content-Type: ' . sanitize_mime_type( $mime_type ) );
+			header( 'Content-Length: ' . intval( $filesize ) );
+			header( 'Content-Disposition: inline; filename=' . sanitize_file_name( $filename ) );
 		}
 
 
-		function load_image_sizes() {
-			$this->sizes = get_option( 'gga-dynamic-image-sizes' );
-
-			if ( $this->sizes && is_array( $this->sizes ) ) {
-				foreach ( $this->sizes as $s )
-					add_image_size( $s->name, $s->w, $s->h, true );
+		private function send_common_stream_headers() {
+			if ( $this->add_expires ) {
+				$expires = DAY_IN_SECONDS * 15;
+				header( 'Pragma: public' );
+				header( 'Cache-Control: public' );
+				header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time()+$expires ) . ' GMT' );
+				header( 'Last-Modified:Mon, 20 Aug 2012 19:20:21 GMT' );
 			}
-			else
-				$this->sizes = array();
-
 		}
 
 
-		function add_image_size( $w, $h ) {
-			$image_size_name = $this->image_size_name( $w, $h );
+		function add_image_size( $width, $height ) {
+			$image_size_name = $this->image_size_name( $width, $height );
+
+			if ( ! is_array( $this->sizes ) ) {
+				$this->sizes = array();
+			}
 
 			foreach ( $this->sizes as $s ) {
 				if ( $s->name === $image_size_name )
@@ -310,14 +294,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// size does not exist, add it
 			$size = new stdClass();
 			$size->name = $image_size_name;
-			$size->w = $w;
-			$size->h = $h;
+			$size->w = $width;
+			$size->h = $height;
 
 			$this->sizes[] = $size;
-			//update_option( 'gga-dynamic-image-sizes',  $this->sizes);
-			//$this->save_images_sizes();
 
-			add_image_size( $image_size_name, $w, $h, true );
+			add_image_size( $image_size_name, $width, $height, true );
 
 		}
 
@@ -411,119 +393,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function init_filesystem() {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
-			$access_type = get_filesystem_method();
-			if( $access_type === 'direct' ) {
-				$upload_dir = wp_upload_dir();
-				$creds = request_filesystem_credentials( $upload_dir['url'] );
-				/* initialize the API */
-				return WP_Filesystem( $creds );
-			} else {
-				return false;
-			}
-		}
-
-
-		function get_cache_directory() {
-			$cache_directory = apply_filters( $this->plugin_name . '-setting-get', 'gga-dynamic-placeholder-images', $this->plugin_name . '-settings-cache', 'cache-directory' );
-			$upload_dir = wp_upload_dir();
-			return path_join( $upload_dir['basedir'], $cache_directory );
-		}
-
-
-		function create_cache_directory() {
-			$cache_directory = $this->get_cache_directory();
-			if ( wp_mkdir_p( $cache_directory ) ) {
-				foreach( $this->cache_width_directories() as $width ) {
-					$this->create_cache_width_directory( $cache_directory, $width );
-				}
-			}
-
-		}
-
-		function cache_width_directories() {
-			$widths = array();
-			for ( $width = 0; $width <= 2000; $width += 100 ) {
-				$widths[] = $width;
-			}
-			return $widths;
-		}
-
-
-		function create_cache_width_directory( $base_cache_directory, $width ) {
-			wp_mkdir_p( path_join( $base_cache_directory, $width ) );
-		}
-
-
-		function delete_cache_directory() {
-
-			if ( $this->init_filesystem() ) {
-				global $wp_filesystem;
-				$cache_directory = $this->get_cache_directory();
-				delete_site_transient( $this->plugin_name . '-cache-size' );
-				return $wp_filesystem->rmdir( $cache_directory, true );
-			} else {
-				return false;
-			}
-
-		}
-
-
-		function purge_cache_directory() {
-			if ( $this->delete_cache_directory() ) {
-				return $this->create_cache_directory();
-			}
-			else {
-				return false;
-			}
-		}
-
-		function get_cache_directory_contents() {
-			if ( $this->init_filesystem() ) {
-				$cache_directory = $this->get_cache_directory();
-				global $wp_filesystem;
-				return $wp_filesystem->dirlist( $cache_directory, false, true );
-			} else {
-				return false;
-			}
-		}
-
-
-		function get_cache_directory_size( $size ) {
-			$transient = $this->plugin_name . '-cache-size';
-			$size = get_site_transient( $transient );
-			if ( ! empty( $size ) ) {
-				return $size;
-			}
-
-			$list = $this->get_cache_directory_contents();
-			if ( !empty( $list ) ) {
-				$size = $this->get_directory_size( $list );
-				set_site_transient( $transient, $size, MINUTE_IN_SECONDS * 15 );
-				return $size;
-			} else {
-				return $size;
-			}
-		}
-
-
-		function get_directory_size( $list ) {
-			$size = 0;
-
-			if ( ! empty( $list ) ) {
-
-				foreach ($list as $key => $item) {
-					if ( $item['type'] == 'f' ) {
-						$size += $item['size'];
-					} else if ( $item['type'] == 'd' && ! empty( $item['files'] ) ) {
-						$size += $this->get_directory_size( $item['files'] );
-					}
-				}
-
-			}
-
-			return $size;
+		private function get_cache_directory() {
+			return apply_filters( $this->plugin_name . '-get-cache-directory', 'gga-dynamic-placeholder-images' );
 		}
 
 
