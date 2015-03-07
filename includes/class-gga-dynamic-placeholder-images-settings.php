@@ -25,12 +25,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 
 			// admin menus
 			if ( is_admin() ) {
+				$this->handle_admin_actions();
 				add_action( 'admin_init', array( $this, 'admin_init' ) );
 				add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 				add_action( 'admin_notices', array( $this, 'activation_admin_notice' ) );
-
-				$this->handle_admin_actions();
-
 			}
 
 		}

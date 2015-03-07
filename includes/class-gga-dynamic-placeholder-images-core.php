@@ -8,6 +8,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		private $version = '2015-03-06-01';
 		private $sizes;
 		private $plugin_name = 'gga-dynamic-images';
+		private $meta_sizes = 'gga-dpi-sizes';
+		private $add_expires = true;
 
 		var $plugin_base_url = '';
 
@@ -89,27 +91,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		private function handle_dynamic_image( $width, $height, $slug ) {
 
-			global $wp_query;
-
-
 			if ( $width !== 0 && $height !== 0 ) {
 
-				//$this->load_image_sizes();
-				$id = 0;
-
-				if ( $slug === 'random' ) {
-					$id = $this->get_random_image_id();
-					$this->add_expires = false;
-				}
-				else if ( !empty( $slug ) ) {
-						$id = $this->get_image_id_by_slug( $slug );
-						if ( $id === 0 ) {
-							$this->show_404_and_die();
-						}
-					} else {
-					$id = $this->get_existing_image_id_by_dimensions( $width, $height );
-				}
-
+				$id = $this->get_image_id_for_slug( $slug, $width, $height );
 
 				if ( empty( $id ) ) {
 					$id = $this->get_random_image_id();
@@ -126,7 +110,25 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				die();
 			}
 
+		}
 
+
+		private function get_image_id_for_slug( $slug, $width, $height ) {
+			$id = 0;
+
+			if ( empty( $slug ) ) {
+				$id = $this->get_existing_image_id_by_dimensions( $width, $height );
+			} else if ( $slug === 'random' ) {
+				$id = $this->get_random_image_id();
+				$this->add_expires = false;
+			} else if ( ! empty( $slug ) ) {
+				$id = $this->get_image_id_by_slug( $slug );
+				if ( empty( $id ) ) {
+					$this->show_404_and_die();
+				}
+			}
+
+			return $id;
 		}
 
 
@@ -149,18 +151,19 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function delete_options_from_query( $query ) {
-			global $wpdb;
-			$results = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options " . $query );
+		private function delete_options_from_query( $query ) {
+			if ( ! empty( $query) ) {
+				global $wpdb;
+				$results = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options " . $query );
 
-			foreach ( $results as $r ) {
-				delete_option( $r->option_name );
+				foreach ( $results as $r ) {
+					delete_option( $r->option_name );
+				}
 			}
-
 		}
 
 
-		function show_404_and_die() {
+		private function show_404_and_die() {
 			status_header( 404 );
 			nocache_headers();
 			include get_404_template();
@@ -197,32 +200,33 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_random_image_id() {
+		private function get_random_image_id() {
 			$args = $this->image_query_args();
 			$args['orderby'] = 'rand';
 			return $this->get_image_id_from_query( $args );
 		}
 
 
-		function get_image_id_by_slug( $slug ) {
+		private function get_image_id_by_slug( $slug ) {
 			$args = $this->image_query_args();
 			$args['name'] = $slug;
 			return $this->get_image_id_from_query( $args );
 		}
 
 
-		function get_image_id_from_query( $args ) {
+		private function get_image_id_from_query( $args ) {
 			$id = 0;
 			$query = new WP_Query( $args );
 
-			if ( $query->have_posts() )
+			if ( $query->have_posts() ) {
 				$id = $query->post->ID;
+			}
 
 			return $id;
 		}
 
 
-		function stream_image( $id, $width, $height ) {
+		private function stream_image( $id, $width, $height ) {
 
 			$image_size_name = $this->image_size_name( $width, $height );
 			$image = get_post( $id );
@@ -278,7 +282,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function add_image_size( $width, $height ) {
+		private function add_image_size_meta( $width, $height ) {
 			$image_size_name = $this->image_size_name( $width, $height );
 
 			if ( ! is_array( $this->sizes ) ) {
@@ -294,8 +298,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// size does not exist, add it
 			$size = new stdClass();
 			$size->name = $image_size_name;
-			$size->w = $width;
-			$size->h = $height;
+			$size->width = $width;
+			$size->height = $height;
 
 			$this->sizes[] = $size;
 
@@ -304,92 +308,107 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-
-		function generate_image( $id, $w, $h ) {
-
-
-			$image_size_name = $this->image_size_name( $w, $h );
-
-			$this->add_image_size( $w, $h );
-
-			$image = get_post( $id );
-			$image_size_exists = $this->image_size_exists( $id, $w, $h );
-			$cached_file_exists = false;
-
-			$metadata = wp_get_attachment_metadata( $id );
-
+		private function cached_file_exists( $metadata, $image_size_name, $width ) {
 			if ( ! empty( $metadata ) && ! empty( $metadata[ $this->meta_sizes ] ) && ! empty( $metadata[ $this->meta_sizes ][ $image_size_name ] ) && ! empty( $metadata[ $this->meta_sizes ][ $image_size_name ]['file'] ) ) {
-				$cached_file_exists = file_exists( $this->get_cached_file_path( $metadata[ $this->meta_sizes ][ $image_size_name ]['file'], $w ) );
+				return file_exists( $this->get_cached_file_path( $metadata[ $this->meta_sizes ][ $image_size_name ]['file'], $width ) );
+			}
+			else {
+				return false;
+			}
+		}
+
+
+		/*
+		if ( false ) {
+			// this will force the resizer to conform to the dimensions of the original image
+			// we may need to add code here to scale up the original image before resizing/cropping
+			if ( ! empty( $metadata['width'] ) && $width > $metadata['width'] ) {
+				$width = $metadata['width'];
 			}
 
-
-			if ( ! $image_size_exists || ! $cached_file_exists ) {
-				if ( $image ) {
-					$fullsizepath = get_attached_file( $image->ID );
-					include_once ABSPATH . 'wp-admin/includes/image.php';
-
-					// don't call wp_generate_attachment_metadata because it regenerates existing images
-
-					if ( false ) {
-						// this will force the resizer to conform to the dimensions of the original image
-						// we may need to add code here to scale up the original image before resizing/cropping
-						if ( ! empty( $metadata['width'] ) && $w > $metadata['width'] ) {
-							$w = $metadata['width'];
-						}
-
-						if ( ! empty( $metadata['height'] ) && $w > $metadata['height'] ) {
-							$h = $metadata['height'];
-						}
-					}
-
-					if ( ! $cached_file_exists ) {
-						$resized = image_make_intermediate_size( $fullsizepath, $w, $h, $crop=true );
-						if ( ! empty( $resized ) ) {
-							$this->move_resized_to_cache( $resized['file'], $fullsizepath, $w );
-						} else {
-							return false;
-						}
-					}
+			if ( ! empty( $metadata['height'] ) && $width > $metadata['height'] ) {
+				$height = $metadata['height'];
+			}
+		}
+		*/
 
 
-					if ( ! empty( $resized ) && ! empty( $resized['file'] ) ) {
-						$metadata[ $this->meta_sizes ][ $image_size_name ] = $resized;
-						wp_update_attachment_metadata( $id, $metadata );
-					}
+		private function generate_image( $id, $width, $height ) {
+			$image_size_name = $this->image_size_name( $width, $height );
+			$this->add_image_size_meta( $width, $height );
+			$image = get_post( $id );
+			$image_size_exists = $this->image_size_exists( $id, $width, $height );
+			$metadata = wp_get_attachment_metadata( $id );
+			$cached_file_exists = $this->cached_file_exists( $metadata, $image_size_name, $width );
 
+			if ( ! empty( $image) && ( ! $image_size_exists || ! $cached_file_exists ) ) {
+				$fullsizepath = get_attached_file( $image->ID );
+				include_once ABSPATH . 'wp-admin/includes/image.php';
+
+				if ( ! $cached_file_exists ) {
+					$resized = $this->generate_resized_image( $fullsizepath, $width, $height );
 				}
 
+				$this->update_image_metadata( $id, $resized, $metadata, $image_size_name );
 			}
 
-
-			// save option so we know which image to use for the size
-			if ( empty( $this->get_existing_image_id_by_dimensions( $w, $h ) ) )
-				add_option( "_gga-placeholder-image-for-{$w}-{$h}", $id, '', 'no' );
+			$this->add_image_size_association( $id, $width, $height );
 
 			return true;
 
 		}
 
 
-		function move_resized_to_cache( $resized_filename, $fullsizepath, $width ) {
+		private function update_image_metadata( $id, $resized, $metadata, $image_size_name ) {
+			if ( ! empty( $resized ) && ! empty( $resized['file'] ) ) {
+				$metadata[ $this->meta_sizes ][ $image_size_name ] = $resized;
+				wp_update_attachment_metadata( $id, $metadata );
+			}
+		}
+
+
+		private function add_image_size_association( $id, $width, $height ) {
+			// save option so we know which image to use for the size
+			$exists = $this->get_existing_image_id_by_dimensions( $width, $height );
+			if ( empty( $exists ) ) {
+				add_option( "_gga-placeholder-image-for-{$width}-{$height}", $id, '', 'no' );
+			}
+		}
+
+
+		private function generate_resized_image( $fullsizepath, $width, $height ) {
+			// don't call wp_generate_attachment_metadata because it regenerates existing images
+			$resized = image_make_intermediate_size( $fullsizepath, $width, $height, $crop=true );
+			if ( ! empty( $resized ) ) {
+				$this->move_resized_to_cache( $resized['file'], $fullsizepath, $width );
+				return $resized;
+			} else {
+				return false;
+			}
+
+		}
+
+
+		private function move_resized_to_cache( $resized_filename, $fullsizepath, $width ) {
 			delete_site_transient( $this->plugin_name . '-cache-size' );
 			rename( path_join( dirname($fullsizepath), $resized_filename ), path_join( $this->get_cache_directory_for_width( $width ), $resized_filename ) );
 		}
 
 
-		function get_existing_image_id_by_dimensions( $w, $h ) {
-			return get_option( "_gga-placeholder-image-for-{$w}-{$h}", false );
+		private function get_existing_image_id_by_dimensions( $width, $height ) {
+			$id = get_option( "_gga-placeholder-image-for-{$width}-{$height}", false );
+			return $id;
 		}
 
 
-		function image_size_exists( $id, $w, $h ) {
+		private function image_size_exists( $id, $width, $height ) {
 			$meta = wp_get_attachment_metadata( $id );
-			return ! empty( $meta[ $this->meta_sizes ] ) && ! empty( $meta[ $this->meta_sizes ][$this->image_size_name( $w, $h )] );
+			return ! empty( $meta[ $this->meta_sizes ] ) && ! empty( $meta[ $this->meta_sizes ][$this->image_size_name( $width, $height )] );
 		}
 
 
-		function image_size_name( $w, $h ) {
-			return 'gga-image-' . $w . '-' . $h;
+		private function image_size_name( $width, $height ) {
+			return 'gga-image-' . $width . '-' . $height;
 		}
 
 
@@ -398,7 +417,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_cache_directory_for_width( $width ) {
+		private function get_cache_directory_for_width( $width ) {
 			$max_width = $this->get_max_width();
 			if ( $width > $max_width ) {
 				$width = $max_width;
@@ -417,17 +436,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_cached_file_path( $filename, $width ) {
+		private function get_cached_file_path( $filename, $width ) {
 			return path_join( $this->get_cache_directory_for_width( $width ), $filename );
 		}
 
 
-		function get_max_width() {
+		private function get_max_width() {
 			return intval( apply_filters( $this->plugin_name . '-setting-get', 2000, $this->plugin_name . '-settings-general', 'max-width' ) );
 		}
 
 
-		function get_max_height() {
+		private function get_max_height() {
 			return intval( apply_filters( $this->plugin_name . '-setting-get', 2000, $this->plugin_name . '-settings-general', 'max-height' ) );
 		}
 
