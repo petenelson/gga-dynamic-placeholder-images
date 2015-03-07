@@ -171,7 +171,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		private function query_images( $args ) {
+		public function query_images( $args ) {
 			global $post;
 			$posts = array();
 			$query = new WP_Query( $args );
