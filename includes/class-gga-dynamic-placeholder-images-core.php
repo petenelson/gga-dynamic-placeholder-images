@@ -38,7 +38,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
 			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );
 
-
 		}
 
 
@@ -247,14 +246,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				header( 'Content-Length: ' . $filesize );
 				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $w . '-' . $h . '.jpg' );
 
-				if ( $this->add_expires ) {
-					$expires = DAY_IN_SECONDS * 15;
-					header( 'Pragma: public' );
-					header( 'Cache-Control: public' );
-					header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time()+$expires ) . ' GMT' );
-					header( 'Last-Modified:Mon, 20 Aug 2012 19:20:21 GMT' );
-				}
-
+				$this->send_common_stream_headers();
 
 				ob_clean();
 				flush();
@@ -272,27 +264,19 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
-
-		function save_images_sizes() {
-			$key = 'gga-dynamic-image-sizes';
-			if ( false === get_option( $key ) )
-				add_option( $key, $this->sizes, $deprecated = '', $autoload = 'no' );
-			else
-				update_option( $key, $this->sizes );
-		}
-
-
-		function load_image_sizes() {
-			$this->sizes = get_option( 'gga-dynamic-image-sizes' );
-
-			if ( $this->sizes && is_array( $this->sizes ) ) {
-				foreach ( $this->sizes as $s )
-					add_image_size( $s->name, $s->w, $s->h, true );
+		private function send_common_stream_headers() {
+			if ( $this->add_expires ) {
+				$expires = DAY_IN_SECONDS * 15;
+				header( 'Pragma: public' );
+				header( 'Cache-Control: public' );
+				header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time()+$expires ) . ' GMT' );
+				header( 'Last-Modified:Mon, 20 Aug 2012 19:20:21 GMT' );
 			}
-			else
-				$this->sizes = array();
-
 		}
+
+
+
+
 
 
 		function add_image_size( $w, $h ) {
@@ -311,8 +295,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			$size->h = $h;
 
 			$this->sizes[] = $size;
-			//update_option( 'gga-dynamic-image-sizes',  $this->sizes);
-			//$this->save_images_sizes();
 
 			add_image_size( $image_size_name, $w, $h, true );
 
