@@ -222,9 +222,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function stream_image( $id, $w, $h ) {
+		function stream_image( $id, $width, $height ) {
 
-			$image_size_name = $this->image_size_name( $w, $h );
+			$image_size_name = $this->image_size_name( $width, $height );
 			$image = get_post( $id );
 
 			$meta = wp_get_attachment_metadata( $id );
@@ -234,17 +234,17 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			if ( !empty( $sizes ) && ! empty( $sizes[ $image_size_name ] ) ) {
 
-				$filename = $this->get_cached_file_path( $sizes[ $image_size_name ]['file'], $w );
+				$filename = $this->get_cached_file_path( $sizes[ $image_size_name ]['file'], $width );
 				if ( ! file_exists( $filename ) ) {
 					// regenrate a missing image
-					$this->generate_image( $id, $w, $h );
+					$this->generate_image( $id, $width, $height );
 				}
 
 				$filesize = filesize( $filename );
 
 				header( 'Content-Type: ' . $sizes[$image_size_name]['mime-type'] );
 				header( 'Content-Length: ' . $filesize );
-				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $w . '-' . $h . '.jpg' );
+				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $width . '-' . $height . '.jpg' );
 
 				$this->send_common_stream_headers();
 
@@ -253,7 +253,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				readfile( $filename );
 
 				// fire action to allow stats logging
-				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $w, 'height' => $h, 'bytes' => $filesize ) );
+				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $width, 'height' => $height, 'bytes' => $filesize ) );
 
 				die();
 
@@ -275,12 +275,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
+		function add_image_size( $width, $height ) {
+			$image_size_name = $this->image_size_name( $width, $height );
 
-
-
-
-		function add_image_size( $w, $h ) {
-			$image_size_name = $this->image_size_name( $w, $h );
+			if ( ! is_array( $this->sizes ) ) {
+				$this->sizes = array();
+			}
 
 			foreach ( $this->sizes as $s ) {
 				if ( $s->name === $image_size_name )
@@ -291,12 +291,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			// size does not exist, add it
 			$size = new stdClass();
 			$size->name = $image_size_name;
-			$size->w = $w;
-			$size->h = $h;
+			$size->w = $width;
+			$size->h = $height;
 
 			$this->sizes[] = $size;
 
-			add_image_size( $image_size_name, $w, $h, true );
+			add_image_size( $image_size_name, $width, $height, true );
 
 		}
 
