@@ -25,20 +25,20 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 		public function image_attribution_shortcode( $args ) {
 
-			global $gga_image_attribution_args;
+			global $gga_attrib_args;
 
 			wp_enqueue_style( $this->plugin_name . '-attribution', $this->plugin_base_url . 'public/css/gga-dynamic-images.css', array(), $this->version );
-			$gga_image_attribution_args = $this->sanitize_args( wp_parse_args( $args, $this->default_shortcode_args() ) );
+			$gga_attrib_args = $this->sanitize_args( wp_parse_args( $args, $this->default_shortcode_args() ) );
 
 			ob_start();
 			?>
-				<div class="<?php echo esc_attr( $gga_image_attribution_args['class'] ); ?>">
+				<div class="<?php echo esc_attr( $gga_attrib_args['class'] ); ?>">
 					<?php
 						$posts = $this->query_posts( );
 						$this->echo_attribution_items_html( $posts );
 					?>
 				</div><!-- end of attribution images -->
-				<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $gga_image_attribution_args['columns'] > 0 ? floor( 100 / $gga_image_attribution_args['columns'] ) : 100 ) - 1; ?>% } </style>
+				<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $gga_attrib_args['columns'] > 0 ? floor( 100 / $gga_attrib_args['columns'] ) : 100 ) - 1; ?>% } </style>
 			<?php
 			$html = ob_get_contents();
 			ob_end_clean();

@@ -1,6 +1,6 @@
 <?php
 global $gga_image_post;
-global $gga_image_attribution_args;
+global $gga_attrib_args;
 
 $attrib_to = get_post_meta( $gga_image_post->ID, $this->meta_prefix . 'attribute_to', true );
 $attrib_url = get_post_meta( $gga_image_post->ID, $this->meta_prefix . 'attribute_url', true );
@@ -13,11 +13,11 @@ if ( 'on' === get_post_meta( $gga_image_post->ID, $this->meta_prefix . 'cc_by', 
 if ( 'on' === get_post_meta( $gga_image_post->ID, $this->meta_prefix . 'cc_sa', true ) );
 	$cc_url = 'http://creativecommons.org/licenses/by-sa/2.0/';
 
-$image_url = apply_filters( $this->plugin_name . '-image-url', '', $gga_image_attribution_args['width'], $gga_image_attribution_args['height'], $gga_image_post->post_name );
+$image_url = apply_filters( $this->plugin_name . '-image-url', '', $gga_attrib_args['width'], $gga_attrib_args['height'], $gga_image_post->post_name );
 ?>
 <div class="attribImage">
 	<div class="attribImage-inner">
-		<a class="image-link" href="<?php echo $image_url; ?>"><img class="image-thumbnail" src="<?php echo $image_url; ?>" alt="<?php echo esc_attr( $gga_image_post->post_name ); ?>" width="<?php echo $gga_image_attribution_args['width']; ?>" height="<?php echo $gga_image_attribution_args['height']; ?>" /></a>
+		<a class="image-link" href="<?php echo $image_url; ?>"><img class="image-thumbnail" src="<?php echo $image_url; ?>" alt="<?php echo esc_attr( $gga_image_post->post_name ); ?>" width="<?php echo $gga_attrib_args['width']; ?>" height="<?php echo $gga_attrib_args['height']; ?>" /></a>
 		<div class="image-meta">
 			<div class="image-tag">tag: <?php echo esc_html( $gga_image_post->post_name ); ?></div>
 			<?php if ( $attrib_to !== false && !empty( $attrib_to ) ) { ?>
