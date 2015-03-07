@@ -36,7 +36,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			// allows cache interaction
 			add_action( $this->plugin_name . '-purge-cache', array( $this, 'purge_cache_directory' ) );
-			add_filter( $this->plugin_name . '-get-cache-size', array( $this, 'get_cache_directory_size' ) );
 
 			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
 			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );
@@ -484,39 +483,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 
 		function get_cache_directory_size( $size ) {
-			$transient = $this->plugin_name . '-cache-size';
-			$size = get_site_transient( $transient );
-			if ( ! empty( $size ) ) {
-				return $size;
-			}
-
-			$list = $this->get_cache_directory_contents();
-			if ( !empty( $list ) ) {
-				$size = $this->get_directory_size( $list );
-				set_site_transient( $transient, $size, MINUTE_IN_SECONDS * 15 );
-				return $size;
-			} else {
-				return $size;
-			}
-		}
-
-
-		function get_directory_size( $list ) {
-			$size = 0;
-
-			if ( ! empty( $list ) ) {
-
-				foreach ($list as $key => $item) {
-					if ( $item['type'] == 'f' ) {
-						$size += $item['size'];
-					} else if ( $item['type'] == 'd' && ! empty( $item['files'] ) ) {
-						$size += $this->get_directory_size( $item['files'] );
-					}
-				}
-
-			}
-
-			return $size;
+			return apply_filters( $this->plugin_name . '-get-cache-size', 0 );
 		}
 
 
