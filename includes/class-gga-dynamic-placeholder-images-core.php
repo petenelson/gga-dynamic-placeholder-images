@@ -6,10 +6,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 	class GGA_Dynamic_Placeholder_Images_Core {
 
 		private $version = '2015-03-06-01';
-		private $sizes;
 		private $plugin_name = 'gga-dynamic-images';
 		private $meta_sizes = 'gga-dpi-sizes';
 		private $add_expires = true;
+		private $sizes;
 
 		var $plugin_base_url = '';
 
@@ -35,7 +35,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			// generate a URL to an image
 			add_filter( $this->plugin_name . '-image-url', array( $this, 'generate_image_url' ), 10, 4 );
-
 
 			add_action( $this->plugin_name . '-delete-associations', array( $this, 'delete_all_dimension_associations' ) );
 			add_filter( $this->plugin_name . '-get-associations-count', array( $this, 'get_dimension_associations_count' ) );

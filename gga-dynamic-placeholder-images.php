@@ -1,20 +1,22 @@
 <?php
 /*
- * Plugin Name: Dynamic Placeholder Images
- * Plugin URI: https://github.com/petenelson/gga-dynamic-placeholder-images
- * Description: Plugin for managing and serving up placeholder images (such as <a href="http://baconmockup.com/200/200" target="_blank">http://baconmockup.com/200/200</a>)
- * Version: 2.0
- * Author: Pete Nelson (@GunGeekATX)
- * Author URI: https://twitter.com/GunGeekATX
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
- * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume
- * that you can use any other version of the GPL.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
- */
+Plugin Name: Dynamic Placeholder Images
+Plugin URI: https://github.com/petenelson/gga-dynamic-placeholder-images
+Description: Plugin for managing and serving up placeholder images (such as <a href="http://baconmockup.com/200/200" target="_blank">http://baconmockup.com/200/200</a>)
+Version: 2.0
+Author: Pete Nelson (@GunGeekATX)
+Author URI: https://twitter.com/GunGeekATX
+Text Domain: gga-dynamic-placeholder-images
+Domain Path: /lang
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+General Public License version 2, as published by the Free Software Foundation.  You may NOT assume
+that you can use any other version of the GPL.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+*/
 
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
@@ -26,9 +28,9 @@ foreach ($includes as $include) {
 
 // handles URL rewrites, generating placeholder images, flushing cache, etc
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
-	$gga_dynamic_placeholder_images_core = new GGA_Dynamic_Placeholder_Images_Core();
-	$gga_dynamic_placeholder_images_core->plugin_base_url = plugin_dir_url( __FILE__ );
-	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_core, 'plugins_loaded' ) );
+	$gga_images_core = new GGA_Dynamic_Placeholder_Images_Core();
+	$gga_images_core->plugin_base_url = plugin_dir_url( __FILE__ );
+	add_action( 'plugins_loaded', array( $gga_images_core, 'plugins_loaded' ) );
 }
 
 
