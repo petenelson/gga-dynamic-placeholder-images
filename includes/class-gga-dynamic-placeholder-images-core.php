@@ -425,10 +425,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		function get_cache_directory() {
-			$cache_directory = apply_filters( $this->plugin_name . '-setting-get', 'gga-dynamic-placeholder-images', $this->plugin_name . '-settings-cache', 'cache-directory' );
-			$upload_dir = wp_upload_dir();
-			return path_join( $upload_dir['basedir'], $cache_directory );
+		private function get_cache_directory() {
+			return apply_filters( $this->plugin_name . '-get-cache-directory', 'gga-dynamic-placeholder-images' );
 		}
 
 

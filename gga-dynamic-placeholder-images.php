@@ -18,7 +18,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
 
-$includes = array( 'core', 'api', 'attachment-meta', 'settings', 'dashboard-widgets', 'stats', 'attribution' );
+$includes = array( 'core', 'cache', 'api', 'attachment-meta', 'settings', 'dashboard-widgets', 'stats', 'attribution' );
 foreach ($includes as $include) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-gga-dynamic-placeholder-images-' . $include . '.php';
 }
@@ -29,6 +29,13 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 	$gga_dynamic_placeholder_images_core = new GGA_Dynamic_Placeholder_Images_Core();
 	$gga_dynamic_placeholder_images_core->plugin_base_url = plugin_dir_url( __FILE__ );
 	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_core, 'plugins_loaded' ) );
+}
+
+
+// Cache management
+if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
+	$gga_dynamic_placeholder_images_cache = new GGA_Dynamic_Placeholder_Images_Cache();
+	add_action( 'plugins_loaded', array( $gga_dynamic_placeholder_images_cache, 'plugins_loaded' ) );
 }
 
 
