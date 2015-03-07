@@ -241,11 +241,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 				}
 
 				$filesize = filesize( $filename );
-
-				header( 'Content-Type: ' . $sizes[$image_size_name]['mime-type'] );
-				header( 'Content-Length: ' . $filesize );
-				header( 'Content-Disposition: inline; filename=' . $image->post_name . '-' . $width . '-' . $height . '.jpg' );
-
+				$this->send_image_stream_headers( $sizes[$image_size_name]['mime-type'], $filesize, $image->post_name . '-' . $width . '-' . $height . '.jpg' );
 				$this->send_common_stream_headers();
 
 				ob_clean();
@@ -254,7 +250,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 				// fire action to allow stats logging
 				do_action( $this->plugin_name . '-image-view', array( 'post_id' => $id, 'width' => $width, 'height' => $height, 'bytes' => $filesize ) );
-
 				die();
 
 			}
@@ -263,6 +258,14 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			}
 
 		}
+
+
+		private function send_image_stream_headers( $mime_type, $filesize, $filename ) {
+			header( 'Content-Type: ' . sanitize_mime_type( $mime_type ) );
+			header( 'Content-Length: ' . intval( $filesize ) );
+			header( 'Content-Disposition: inline; filename=' . sanitize_file_name( $filename ) );
+		}
+
 
 		private function send_common_stream_headers() {
 			if ( $this->add_expires ) {
