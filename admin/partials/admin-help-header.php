@@ -39,7 +39,7 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 
 	<h3 class="title"><?php _e( 'Shortcode', 'gga-dynamic-placeholder-images' ); ?></h3>
 	<p>
-		<?php _e( 'Display a list of images, their tags, and any Create Commons attribution', 'gga-dynamic-placeholder-images' ); ?>: <strong>[gga-image-attribution]</strong><br/>
+		<?php _e( 'Display a list of images, their tags, and any Create Commons attribution', 'gga-dynamic-placeholder-images' ); ?>: <strong>[dynamic-images-attribution]</strong><br/>
 
 		<br/>
 		<strong><?php _e( 'Parameters' , 'gga-dynamic-placeholder-images' ) ?></strong><br/>
@@ -48,7 +48,7 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 		<strong>height</strong> - <?php _e( 'Image height, defaults to 300', 'gga-dynamic-placeholder-images' ); ?><br/>
 		<strong>class</strong> - <?php _e( 'CSS class for the grid, defaults to gga-dynamic-images-attribution', 'gga-dynamic-placeholder-images' ); ?><br/>
 		<br/>
-		<strong><?php _e( 'Example', 'gga-dynamic-placeholder-images' ) ?>:</strong> [gga-image-attribution columns=4 width=200 height=200 class='my-image-attributions']
+		<strong><?php _e( 'Example', 'gga-dynamic-placeholder-images' ) ?>:</strong> [dynamic-images-attribution columns=4 width=200 height=200 class='my-image-attributions']
 	</p>
 
 

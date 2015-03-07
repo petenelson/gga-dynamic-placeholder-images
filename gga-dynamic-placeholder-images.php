@@ -3,19 +3,11 @@
 Plugin Name: Dynamic Placeholder Images
 Plugin URI: https://github.com/petenelson/gga-dynamic-placeholder-images
 Description: Plugin for managing and serving up placeholder images (such as <a href="http://baconmockup.com/200/200" target="_blank">http://baconmockup.com/200/200</a>)
-Version: 2.0
+Version: 2.0.0
 Author: Pete Nelson (@GunGeekATX)
 Author URI: https://twitter.com/GunGeekATX
 Text Domain: gga-dynamic-placeholder-images
 Domain Path: /lang
-
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU
-General Public License version 2, as published by the Free Software Foundation.  You may NOT assume
-that you can use any other version of the GPL.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
 */
 
 if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
