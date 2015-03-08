@@ -5,7 +5,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Attribution {
 
-		private $version = '2015-03-06-01';
+		private $version = '2015-03-08-02';
 		private $plugin_name = 'gga-dynamic-images';
 		private $meta_prefix = '_gga_image_';
 

@@ -9,6 +9,7 @@
 	padding: 1%;
 	width: 100%;
 	text-align: center;
+	box-sizing: border-box;
 }
 
 .gga-dynamic-images-attribution .attribImage-inner {
