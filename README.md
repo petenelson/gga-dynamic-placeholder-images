@@ -25,6 +25,9 @@
 
 ## Revision History
 
+### v2.0.1 March 8, 2015
+- Minor updates to the image attribution CSS
+
 ### v2.0.0 March 7, 2015
 - Major rewrite, first release to the WordPress repository
 
