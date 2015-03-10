@@ -22,6 +22,8 @@ Includes:
 
 Be sure to check Settings/Dynamic Placeholder images to fully customize your settings.
 
+View a demo page with my goofy dog: https://petenelson.com/dynamic-clyde-images/
+
 
 == Installation ==
 
