@@ -56,6 +56,21 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			// add an option so we can show the activated admin notice
 			add_option( $this->plugin_name . '-plugin-activated', '1' );
 
+			if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
+				$core = new GGA_Dynamic_Placeholder_Images_Core();
+				$core->register_rewrites( 'dynamic-images/' );
+			}
+
+			flush_rewrite_rules( );
+
+		}
+
+
+		public function deactivation_hook() {
+			if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
+				$cache = new GGA_Dynamic_Placeholder_Images_Cache();
+				$cache->delete_cache_directory();
+			}
 		}
 
 
@@ -82,11 +97,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 					</div>
 				<?php
 			}
-		}
-
-
-		public function deactivation_hook() {
-			// placeholder in case we need deactivation code
 		}
 
 

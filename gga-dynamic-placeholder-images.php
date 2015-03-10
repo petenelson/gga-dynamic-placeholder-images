@@ -3,7 +3,7 @@
 Plugin Name: Dynamic Placeholder Images
 Plugin URI: https://wordpress.org/plugins/dynamic-placeholder-images/
 Description: Plugin for managing and serving up placeholder images (such as <a href="http://baconmockup.com/200/200" target="_blank">http://baconmockup.com/200/200</a>)
-Version: 2.0.1
+Version: 2.0.2
 Author: Pete Nelson (@GunGeekATX)
 Author URI: https://twitter.com/GunGeekATX
 Text Domain: gga-dynamic-placeholder-images
@@ -53,6 +53,8 @@ if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 	$gga_images_settings = new GGA_Dynamic_Placeholder_Images_Settings();
 	$gga_images_settings->plugin_base_dir = plugin_dir_path( __FILE__ );
 	add_action( 'plugins_loaded', array( $gga_images_settings, 'plugins_loaded' ) );
+	register_activation_hook( __FILE__, array( $gga_images_settings, 'activation_hook' ) );
+	register_deactivation_hook( __FILE__, array( $gga_images_settings, 'deactivation_hook' ) );
 }
 
 

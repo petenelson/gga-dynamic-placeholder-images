@@ -42,14 +42,19 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 		}
 
 
-		public function register_rewrites() {
+		public function register_rewrites( $base_url = '' ) {
+
+			if ( empty( $base_url ) ) {
+				$base_url = $this->get_base_url();
+			}
+
 			add_rewrite_tag( '%gga-dynamic-image%', '1' );
 			add_rewrite_tag( '%gga-dynamic-image-width%', '([0-9]+)' );
 			add_rewrite_tag( '%gga-dynamic-image-height%', '([0-9]+)' );
 			add_rewrite_tag( '%gga-dynamic-image-slug%', '([A-Za-z0-9\-\_]+)' );
 
-			add_rewrite_rule( $this->get_base_url() . '([0-9]+)/([0-9]+)/([A-Za-z0-9\-\_]+)/?', 'index.php?gga-dynamic-image=1&gga-dynamic-image-width=$matches[1]&gga-dynamic-image-height=$matches[2]&gga-dynamic-image-slug=$matches[3]', 'top' );
-			add_rewrite_rule( $this->get_base_url() . '([0-9]+)/([0-9]+)/?', 'index.php?gga-dynamic-image=1&gga-dynamic-image-width=$matches[1]&gga-dynamic-image-height=$matches[2]&gga-dynamic-image-slug=', 'top' );
+			add_rewrite_rule( $base_url . '([0-9]+)/([0-9]+)/([A-Za-z0-9\-\_]+)/?', 'index.php?gga-dynamic-image=1&gga-dynamic-image-width=$matches[1]&gga-dynamic-image-height=$matches[2]&gga-dynamic-image-slug=$matches[3]', 'top' );
+			add_rewrite_rule( $base_url . '([0-9]+)/([0-9]+)/?', 'index.php?gga-dynamic-image=1&gga-dynamic-image-width=$matches[1]&gga-dynamic-image-height=$matches[2]&gga-dynamic-image-slug=', 'top' );
 		}
 
 

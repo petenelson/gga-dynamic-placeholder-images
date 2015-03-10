@@ -4,7 +4,7 @@ Tags: images, media
 Donate link: http://baconmockup.com
 Requires at least: 4.0
 Tested up to: 4.1
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,11 @@ Be sure to check Settings/Dynamic Placeholder images to fully customize your set
 
 
 == Changelog ==
+
+= v2.0.2 March 10, 2015 =
+* Fixed bugs in activation hook
+* Added deactivation hook to delete image cache
+* Updated uninstall hook to remove plugin options
 
 = v2.0.1 March 8, 2015 =
 * Minor updates to the image attribution CSS

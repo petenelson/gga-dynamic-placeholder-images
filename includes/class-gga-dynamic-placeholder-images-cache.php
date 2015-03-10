@@ -96,7 +96,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Cache' ) ) {
 		}
 
 
-		private function delete_cache_directory() {
+		public function delete_cache_directory() {
 
 			if ( $this->init_filesystem() ) {
 				global $wp_filesystem;
