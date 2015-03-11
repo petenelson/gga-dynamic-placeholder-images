@@ -24,6 +24,7 @@ Be sure to check Settings/Dynamic Placeholder images to fully customize your set
 
 View a demo page with my goofy dog: https://petenelson.com/dynamic-clyde-images/
 
+Thanks to [Kenzie Moss](https://twitter.com/kenziemoss) for the plugin banner and icon.
 
 == Installation ==
 
