@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
+if ( ! defined( 'ABSPATH' ) ) die( 'restricted access' );
 
 if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Stats' ) ) {
 

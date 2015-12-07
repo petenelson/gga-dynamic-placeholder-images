@@ -10,7 +10,7 @@ Text Domain: gga-dynamic-placeholder-images
 Domain Path: /lang
 */
 
-if ( ! defined( 'ABSPATH' ) ) wp_die( 'restricted access' );
+if ( ! defined( 'ABSPATH' ) ) die( 'restricted access' );
 
 $includes = array( 'core', 'cache', 'api', 'attachment-meta', 'settings', 'dashboard-widgets', 'stats', 'attribution' );
 foreach ($includes as $include) {

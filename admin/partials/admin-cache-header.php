@@ -1,6 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) || ! current_user_can( 'manage_options' ) ) {
-	wp_die('restricted access');
+	die('restricted access');
 }
 
 if ( class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {

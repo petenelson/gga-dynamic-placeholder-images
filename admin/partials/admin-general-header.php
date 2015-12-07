@@ -1,5 +1,5 @@
 <?php
-if (!defined( 'ABSPATH' )) wp_die('restricted access');
+if (!defined( 'ABSPATH' )) die('restricted access');
 
 $image_url = apply_filters( 'gga-dynamic-images-image-url', '', 300, 300, 'random' );
 
