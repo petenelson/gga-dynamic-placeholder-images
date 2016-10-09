@@ -3,8 +3,8 @@ Contributors: gungeekatx
 Tags: images, media
 Donate link: http://baconmockup.com
 Requires at least: 4.0
-Tested up to: 4.5
-Stable tag: 2.0.2
+Tested up to: 4.6
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ Thanks to [Kenzie Moss](https://twitter.com/kenziemoss) for the plugin banner an
 
 == Changelog ==
 
+= v2.0.3 October 9, 2016 =
+* Fixed bug in 404 handling for URLs using specific slugs
+
 = v2.0.2 March 10, 2015 =
 * Fixed bugs in activation hook
 * Added deactivation hook to delete image cache
@@ -50,8 +53,8 @@ Thanks to [Kenzie Moss](https://twitter.com/kenziemoss) for the plugin banner an
 
 == Upgrade Notice ==
 
-= v2.0.0 March 7, 2015 =
-* Initial release to the WordPress repository
+= v2.0.3 October 9, 2015 =
+* Fixed bug in 404 handling for URLs using specific slugs
 
 
 == Frequently Asked Questions ==

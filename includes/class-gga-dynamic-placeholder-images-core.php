@@ -5,7 +5,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 	class GGA_Dynamic_Placeholder_Images_Core {
 
-		private $version = '2015-03-06-01';
+		private $version = '2016-10-09-01';
 		private $plugin_name = 'gga-dynamic-images';
 		private $meta_sizes = 'gga-dpi-sizes';
 		private $add_expires = true;
@@ -80,7 +80,6 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 		}
 
-
 		public function generate_image_url( $url, $width, $height, $tag = '' ) {
 			$url = site_url( $this->get_base_url() . intval( $width ) . '/' . intval( $height ) . '/' . sanitize_key( $tag ) . '/' );
 			return $url;
@@ -99,19 +98,23 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 				$id = $this->get_image_id_for_slug( $slug, $width, $height );
 
+				// Set the 404 status if the slug isn't valid.
+				if ( ! empty( $slug ) && 'random' !== $slug && empty( $id ) ) {
+					$this->set_404();
+					return;
+				}
+
 				if ( empty( $id ) ) {
 					$id = $this->get_random_image_id();
 				}
 
 				if ( empty( $id ) ) {
-					$this->show_404_and_die();
+					$this->set_404();
 				}
 				else {
 					$this->generate_image( $id, $width, $height );
 					$this->stream_image( $id, $width, $height );
 				}
-
-				die();
 			}
 
 		}
@@ -128,7 +131,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			} else if ( ! empty( $slug ) ) {
 				$id = $this->get_image_id_by_slug( $slug );
 				if ( empty( $id ) ) {
-					$this->show_404_and_die();
+					$this->set_404();
 				}
 			}
 
@@ -166,14 +169,10 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 			}
 		}
 
-
-		private function show_404_and_die() {
-			status_header( 404 );
-			nocache_headers();
-			include get_404_template();
-			//die();
+		private function set_404() {
+			global $wp_query;
+			$wp_query->is_404 = true;
 		}
-
 
 		public function query_images( $args ) {
 			global $post;
@@ -262,7 +261,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Core' ) ) {
 
 			}
 			else {
-				$this->show_404_and_die();
+				$this->set_404();
 			}
 
 		}
