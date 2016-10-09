@@ -25,6 +25,9 @@
 
 ## Revision History
 
+### v2.0.3 October 9, 2016 =
+- Fixed bug in 404 handling for URLs using specific slugs
+
 ### v2.0.2 March 10, 2015
 - Fixed bugs in activation hook
 - Added deactivation hook to delete image cache
