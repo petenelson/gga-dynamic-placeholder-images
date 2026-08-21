@@ -13,6 +13,6 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 <p>
 	<?php _e( 'Allows for a JSON API to your image generator.', 'gga-dynamic-placeholder-images' ); ?>
 	<?php if ( ! empty( $url ) ) { ?>
-		<br/><?php _e( 'View API Details', 'gga-dynamic-placeholder-images') ?>: <a href="<?php echo $url ?>" target="_blank"><?php echo $url ?></a>
+		<br/><?php _e( 'View API Details', 'gga-dynamic-placeholder-images') ?>: <a href="<?php echo esc_url( $url ) ?>" target="_blank"><?php echo esc_html( $url ) ?></a>
 	<?php } ?>
 </p>

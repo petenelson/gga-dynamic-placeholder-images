@@ -33,7 +33,7 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 		<?php _e( 'After your image is uploaded, you can flag it to be used as a dynamic image and fill in any appropriate Create Commons settings.', 'gga-dynamic-placeholder-images' ); ?>
 		<?php _e( 'The image slug can be used as the tag in the URL to request a specific image.', 'gga-dynamic-placeholder-images' ); ?>
 		<br/>
-		<img src="<?php echo plugin_dir_url( __FILE__ ) ?>image-meta-01.png" alt="<?php _e( 'Image meta', 'gga-dynamic-placeholder-images' ); ?>" />
+		<img src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'image-meta-01.png' ) ?>" alt="<?php esc_attr_e( 'Image meta', 'gga-dynamic-placeholder-images' ); ?>" />
 	</p>
 
 
@@ -54,9 +54,9 @@ if ( ! empty( $enabled ) && ! empty( $base_endpoint ) ) {
 
 	<h3 class="title" id="gga-help-cache"><?php _e( 'Cache', 'gga-dynamic-placeholder-images' ); ?></h3>
 	<p>
-		<?php _e( 'The plugin will generate resized images to the <strong>gga-dynamic-placeholder-images</strong> folder in the uploads folder.', 'gga-dynamic-placeholder-images' ) ?>
+		<?php echo wp_kses_post( __( 'The plugin will generate resized images to the <strong>gga-dynamic-placeholder-images</strong> folder in the uploads folder.', 'gga-dynamic-placeholder-images' ) ) ?>
 		<?php _e( 'For better performance, future requests for a specific image size will use the cached resized image rather than having to generate a new one each time.', 'gga-dynamic-placeholder-images' ) ?>
-		<?php printf( __( 'These cached images can be purged on the <a href="%1s">Cache</a> tab to clear up disk space.', 'gga-dynamic-placeholder-images' ), admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-cache' ) ) ?>
+		<?php echo wp_kses_post( sprintf( __( 'These cached images can be purged on the <a href="%1$s">Cache</a> tab to clear up disk space.', 'gga-dynamic-placeholder-images' ), esc_url( admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-cache' ) ) ) ) ?>
 		<?php _e( 'The plugin will also associate a requested image size to a randomly chosen image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'Future requests for the same image size will return the same image.', 'gga-dynamic-placeholder-images' ) ?>
 		<?php _e( 'These associations can also be purged on the Cache tab.', 'gga-dynamic-placeholder-images' ) ?>

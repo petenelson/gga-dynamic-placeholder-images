@@ -5,5 +5,5 @@ $image_url = apply_filters( 'gga-dynamic-images-image-url', '', 300, 300, 'rando
 
 ?>
 <p class="section-header">
-	View a random image: <a target="_blank" href="<?php echo $image_url ?>"><?php echo $image_url ?></a>
+	View a random image: <a target="_blank" href="<?php echo esc_url( $image_url ) ?>"><?php echo esc_html( $image_url ) ?></a>
 </p>
