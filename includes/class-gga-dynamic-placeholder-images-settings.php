@@ -79,7 +79,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 				?>
 					<div class="updated">
 						<p><?php
-							echo sprintf( __( '<strong>Dynamic Placeholder Images activated!</strong> Please visit the <a href="%s">Settings</a> page to customize your image generator.', 'gga-dynamic-placeholder-images' ), admin_url( 'options-general.php?page=' . $this->plugin_name . '-settings' ) );
+							echo wp_kses_post( sprintf( __( '<strong>Dynamic Placeholder Images activated!</strong> Please visit the <a href="%s">Settings</a> page to customize your image generator.', 'gga-dynamic-placeholder-images' ), esc_url( admin_url( 'options-general.php?page=' . $this->plugin_name . '-settings' ) ) ) );
 						?></p>
 					</div>
 				<?php
@@ -93,7 +93,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			if ( ! empty( $gga_dynamic_images_admin_notice ) ) {
 				?>
 					<div class="updated">
-						<p><?php _e('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images' ) ?>: <?php echo  $gga_dynamic_images_admin_notice; ?></p>
+						<p><?php _e('Dynamic Placeholder Images', 'gga-dynamic-placeholder-images' ) ?>: <?php echo esc_html( $gga_dynamic_images_admin_notice ); ?></p>
 					</div>
 				<?php
 			}
@@ -267,9 +267,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			$option = get_option($key);
 			$value = isset($option[$name]) ? esc_attr($option[$name]) : '';
 
-			echo "<div><input id='{$name}' name='{$key}[{$name}]'  type='text' value='" . $value . "' size='{$size}' maxlength='{$maxlength}' /></div>";
+			echo "<div><input id='" . esc_attr( $name ) . "' name='" . esc_attr( "{$key}[{$name}]" ) . "'  type='text' value='" . $value . "' size='" . esc_attr( $size ) . "' maxlength='" . esc_attr( $maxlength ) . "' /></div>";
 			if (!empty($args['after']))
-				echo '<div>' . __($args['after'], 'gga-dynamic-placeholder-images') . '</div>';
+				echo '<div>' . wp_kses_post( __($args['after'], 'gga-dynamic-placeholder-images') ) . '</div>';
 
 		}
 
@@ -295,9 +295,9 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			$option = get_option($key);
 			$value = isset($option[$name]) ? esc_attr($option[$name]) : '';
 
-			echo "<div><textarea id='{$name}' name='{$key}[{$name}]' rows='{$rows}' cols='{$cols}'>" . $value . "</textarea></div>";
+			echo "<div><textarea id='" . esc_attr( $name ) . "' name='" . esc_attr( "{$key}[{$name}]" ) . "' rows='" . esc_attr( $rows ) . "' cols='" . esc_attr( $cols ) . "'>" . $value . "</textarea></div>";
 			if (!empty($args['after']))
-				echo '<div>' . $args['after'] . '</div>';
+				echo '<div>' . wp_kses_post( $args['after'] ) . '</div>';
 
 		}
 
@@ -322,12 +322,12 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 				$value = '0';
 
 			echo '<div>';
-			echo "<label><input id='{$name}_1' name='{$key}[{$name}]'  type='radio' value='1' " . ('1' === $value ? " checked=\"checked\"" : "") . "/>" . __('Yes', 'gga-dynamic-placeholder-images') . "</label> ";
-			echo "<label><input id='{$name}_0' name='{$key}[{$name}]'  type='radio' value='0' " . ('0' === $value ? " checked=\"checked\"" : "") . "/>" . __('No', 'gga-dynamic-placeholder-images') . "</label> ";
+			echo "<label><input id='" . esc_attr( $name . '_1' ) . "' name='" . esc_attr( "{$key}[{$name}]" ) . "'  type='radio' value='1' " . ('1' === $value ? " checked=\"checked\"" : "") . "/>" . esc_html__('Yes', 'gga-dynamic-placeholder-images') . "</label> ";
+			echo "<label><input id='" . esc_attr( $name . '_0' ) . "' name='" . esc_attr( "{$key}[{$name}]" ) . "'  type='radio' value='0' " . ('0' === $value ? " checked=\"checked\"" : "") . "/>" . esc_html__('No', 'gga-dynamic-placeholder-images') . "</label> ";
 			echo '</div>';
 
 			if (!empty($args['after']))
-				echo '<div>' . __($args['after'], 'gga-dynamic-placeholder-images') . '</div>';
+				echo '<div>' . wp_kses_post( __($args['after'], 'gga-dynamic-placeholder-images') ) . '</div>';
 		}
 
 
@@ -371,10 +371,11 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Settings' ) ) {
 			if ( empty( $current_tab ) ) {
 				$current_tab = $this->settings_key_general;
 			}
-			echo '<h2>' . __('Dynamic Placeholder Images Settings', 'gga-dynamic-placeholder-images') . '</h2><h2 class="nav-tab-wrapper">';
+			echo '<h2>' . esc_html__('Dynamic Placeholder Images Settings', 'gga-dynamic-placeholder-images') . '</h2><h2 class="nav-tab-wrapper">';
 			foreach ( $this->plugin_settings_tabs as $tab_key => $tab_caption ) {
 				$active = $current_tab == $tab_key ? 'nav-tab-active' : '';
-				echo '<a class="nav-tab ' . $active . '" href="?page=' . $this->settings_page . '&tab=' . $tab_key . '">' . $tab_caption . '</a>';
+				$tab_url = add_query_arg( array( 'page' => $this->settings_page, 'tab' => $tab_key ), admin_url( 'options-general.php' ) );
+				echo '<a class="nav-tab ' . esc_attr( $active ) . '" href="' . esc_url( $tab_url ) . '">' . esc_html( $tab_caption ) . '</a>';
 			}
 			echo '</h2>';
 		}

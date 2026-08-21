@@ -38,7 +38,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 						$this->echo_attribution_items_html( $posts );
 					?>
 				</div><!-- end of attribution images -->
-				<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo ( $gga_attrib_args['columns'] > 0 ? floor( 100 / $gga_attrib_args['columns'] ) : 100 ) - 1; ?>% } </style>
+				<style> .gga-dynamic-images-attribution .attribImage { max-width: <?php echo intval( ( $gga_attrib_args['columns'] > 0 ? floor( 100 / $gga_attrib_args['columns'] ) : 100 ) - 1 ); ?>% } </style>
 			<?php
 			$html = ob_get_contents();
 			ob_end_clean();
@@ -84,7 +84,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attribution' ) ) {
 			);
 
 			if ( ! empty( $cc_data[ $cc_type ] ) ) {
-				$html = '<img class="gga_' . esc_attr( $cc_type ) . '" src="' . $this->plugin_base_url . 'public/images/' . $cc_data[ $cc_type ]['filename'] . '" alt="' . esc_attr( $cc_data[ $cc_type ]['alt'] ) . '" />';
+				$html = '<img class="gga_' . esc_attr( $cc_type ) . '" src="' . esc_url( $this->plugin_base_url . 'public/images/' . $cc_data[ $cc_type ]['filename'] ) . '" alt="' . esc_attr( $cc_data[ $cc_type ]['alt'] ) . '" />';
 			}
 
 			return $html;

@@ -85,7 +85,8 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Attachment_Meta' ) ) {
 			$meta_on = get_post_meta( $post->ID, '_' . $id, true ) === 'on';
 			$checked = $meta_on ? 'checked="checked"' : '';
 			$args = wp_parse_args( $args, array( 'append_html' => '' ) );
-			return "<input type='checkbox' name='attachments[{$post->ID}][$id]' id='attachments[{$post->ID}][$id]' value='on' {$checked} />" . $args['append_html'];
+			$field_name = 'attachments[' . intval( $post->ID ) . '][' . $id . ']';
+			return "<input type='checkbox' name='" . esc_attr( $field_name ) . "' id='" . esc_attr( $field_name ) . "' value='on' {$checked} />" . $args['append_html'];
 		}
 
 

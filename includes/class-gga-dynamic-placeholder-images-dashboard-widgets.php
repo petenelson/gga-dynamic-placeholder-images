@@ -50,15 +50,15 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 			?>
 
 				<ul>
-					<li><?php _e( 'Current Cache Size', 'gga-dynamic-placeholder-images' ) ?>: <?php echo $cache_size; ?> </li>
-					<li><?php _e( 'Image Association Count', 'gga-dynamic-placeholder-images' ) ?>: <?php echo $image_associations; ?> </li>
+					<li><?php _e( 'Current Cache Size', 'gga-dynamic-placeholder-images' ) ?>: <?php echo esc_html( $cache_size ); ?> </li>
+					<li><?php _e( 'Image Association Count', 'gga-dynamic-placeholder-images' ) ?>: <?php echo esc_html( $image_associations ); ?> </li>
 				</ul>
 
 				<?php
 
 				if ( $show_help ) { ?>
 					<p>
-						<a href="<?php echo admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-help#gga-help-cache' ); ?>"><?php _e( 'Help' ) ?></a>
+						<a href="<?php echo esc_url( admin_url( 'options-general.php?page=gga-dynamic-images-settings&tab=gga-dynamic-images-settings-help#gga-help-cache' ) ); ?>"><?php _e( 'Help' ) ?></a>
 					</p>
 
 					<?php
@@ -73,7 +73,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 					) );
 				?>
 
-				<a class="button" href="<?php echo $url ?>"><?php _e( 'Purge Cache', 'gga-dynamic-placeholder-images' ) ?></a>
+				<a class="button" href="<?php echo esc_url( $url ) ?>"><?php _e( 'Purge Cache', 'gga-dynamic-placeholder-images' ) ?></a>
 
 				<?php
 					$action = 'delete-associations';
@@ -83,7 +83,7 @@ if ( ! class_exists( 'GGA_Dynamic_Placeholder_Images_Dashboard_Widgets' ) ) {
 					) );
 				?>
 
-				<a class="button" href="<?php echo $url ?>"><?php _e( 'Purge Image Associations', 'gga-dynamic-placeholder-images' ) ?></a>
+				<a class="button" href="<?php echo esc_url( $url ) ?>"><?php _e( 'Purge Image Associations', 'gga-dynamic-placeholder-images' ) ?></a>
 
 			<?php
 		}
